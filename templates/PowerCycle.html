@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% block title %}PowerCycle{% endblock %}
+{% block popup_window %}
+<div class="window_popup_setting" id="window_popup_setting_power_cycle">
+    <div style="float: left;">
+        <form id="power-cycle-setting-form" autocomplete="off" method="post" action="">
+            <fieldset class="setting-fieldset">
+                <legend class="setting-legend">Settings</legend>
+                <table>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_total_count" for="set_total_count">Total Count: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_total_count" name="set_total_count" class="power_cycle_options" type="text" value="" maxlength="10">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_time_on" for="set_time_on">Time ON(s): </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_time_on" name="set_time_on" type="text" class="power_cycle_options" value="" maxlength="25">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_time_off" for="set_time_off">Time OFF(s): </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_time_off" name="set_time_off" type="text" class="power_cycle_options" value="" maxlength="25">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_relay_type">Type: </label>
+                        </td>
+                        <td class="field">
+                            <select name="set_relay_type" id="set_relay_type">
+                                <option class="option" value="AC" selected="selected">AC</option>
+                                <option class="option" value="Button">Button</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="button_type">
+                        <td class="label">
+                            <label id="lset_port_address">Port Address: </label>
+                        </td>
+                        <td class="field">
+                            <select name="set_port_address" id="set_port_address">
+                                <option class="option" value="01" selected="selected">01</option>
+                                <option class="option" value="02">02</option>
+                                <option class="option" value="04">04</option>
+                                <option class="option" value="08">08</option>
+                                <option class="option" value="10">10</option>
+                                <option class="option" value="20">20</option>
+                                <option class="option" value="40">40</option>
+                                <option class="option" value="80">80</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="button_type">
+                        <td class="label">
+                            <label id="lset_button_press_on" for="set_button_press_on">Button Press ON(s): </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_button_press_on" name="set_button_press_on" type="text" class="power_cycle_options" value="" maxlength="25">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr class="button_type">
+                        <td class="label">
+                            <label id="lset_button_press_off" for="set_button_press_off">Button Press OFF(s): </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_button_press_off" name="set_button_press_off" type="text" class="power_cycle_options" value="" maxlength="25">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="reset" class="button-power_cycle", value="Reset" style="float: left;">
+                        </td>
+                        <td>
+                            <input type="submit" class="button-power_cycle", value="OK", style="float: left;">
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block body %}
+<div id="div-left">
+    <div id="div-power_cycle-top">
+        <div id="div-power_cycle-left">
+                <div id="serial_ports">
+                    <h4>Serial Ports:</h4>
+                    <select id="select-port" size="12"></select>
+                    <br><br>
+                    <div id="div-port-setting">
+                        <table id="port-setting">
+                            <tbody>
+                                <tr>
+                                    <td>BaudRate</td>
+                                    <td>
+                                        <select name="baud_rate" id="baud_rate">
+                                            <option class="option" value="4800">4800</option>
+                                            <option class="option" value="9600" selected="selected">9600</option>
+                                            <option class="option" value="14400">14400</option>
+                                            <option class="option" value="19200">19200</option>
+                                            <option class="option" value="38400">38400</option>
+                                            <option class="option" value="43000">43000</option>
+                                            <option class="option" value="57600">57600</option>
+                                            <option class="option" value="76800">76800</option>
+                                            <option class="option" value="115200">115200</option>
+                                            <option class="option" value="12800">12800</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Parity</td>
+                                    <td>
+                                        <select name="parity" id="parity">
+                                            <option class="option" value="N" selected="selected">N</option>
+                                            <option class="option" value="E">E</option>
+                                            <option class="option" value="O">O</option>
+                                            <option class="option" value="M">M</option>
+                                            <option class="option" value="S">S</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>DataBit</td>
+                                    <td>
+                                        <select name="data_bit" id="data_bit">
+                                            <option class="option" value="5">5</option>
+                                            <option class="option" value="6">6</option>
+                                            <option class="option" value="7">7</option>
+                                            <option class="option" value="8" selected="selected">8</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>StopBit</td>
+                                    <td>
+                                        <select name="stop_bit" id="stop_bit">
+                                            <option class="option" value="1" selected="selected">1</option>
+                                            <option class="option" value="1.5">1.5</option>
+                                            <option class="option" value="2">2</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br>
+                    <button id="btn-open_port" class="button-power_cycle" disabled="disabled">Open</button><br>
+                </div>
+            </div>
+
+            <div id="div-power_cycle-right">
+                <ul id="power_cycle-print"></ul>
+                <!--
+                <textarea id="port_message" rows="1 " cols="43"></textarea>
+                <button id="send_msg" class="button-power_cycle">Send</button>
+                -->
+                <button id="clear_power_cycle_log" class="button-power_cycle" style="margin: 15px 5px 5px;">Clear</button>
+            </div>
+    </div>
+
+
+    <div id="div-power_cycle-bottom">
+        <h4 id="port_status" style="margin-left: 5px;">Ready</h4>
+    </div>
+</div>
+
+<div id="div-right">
+    <button id="btn_options" class="button-power_cycle" disabled="disabled" style="background: gray;">Options</button>
+    <table>
+        <tbody>
+            <tr>
+                <td>Total Count:</td>
+                <td id="total_count" class="power_cycle_setting_show"></td>
+            </tr>
+            <tr>
+                <td>Time ON(s):</td>
+                <td id="time_on" class="power_cycle_setting_show"></td>
+            </tr>
+            <tr>
+                <td>Time OFF(s):</td>
+                <td id="time_off" class="power_cycle_setting_show"></td>
+            </tr>
+            <tr class="button_type">
+                <td>Relay Type(AC/Button):</td>
+                <td id="relay_type" class="power_cycle_setting_show"></td>
+            </tr>
+            <tr class="button_type">
+                <td>Port Address:</td>
+                <td id="port_address" class="power_cycle_setting_show"></td>
+            </tr>
+            <tr class="button_type">
+                <td>Button Press ON(s):</td>
+                <td id="button_press_on" class="power_cycle_setting_show"></td>
+            </tr>
+            <tr class="button_type">
+                <td>Button Press OFF(s):</td>
+                <td id="button_press_off" class="power_cycle_setting_show"></td>
+            </tr>
+            <tr>
+                <td>Start Time:</td>
+                <td id="power_cycle_start_time" class="power_cycle_setting_show"></td>
+            </tr>
+            <tr>
+                <td>Elapsed Time:</td>
+                <td id="power_cycle_elapsed_time" class="power_cycle_setting_show"></td>
+            </tr>
+        </tbody>
+    </table>
+    <button id="btn_stop_auto_power_cycle" class="button-power_cycle" disabled="disabled" style="background: gray">Stop</button>
+</div>
+
+
+
+
+<link rel="stylesheet" href="{{url_for('static', filename='css/PowerCycle.css')}}">
+<script src="{{url_for('static', filename='js/PowerCycle.js')}}"></script>
+{% endblock %}

@@ -1,0 +1,100 @@
+
+td{
+	padding: 2px 5px;
+}
+.button-power_cycle{
+	padding: 8px 10px;
+	border: gray solid thin;
+	outline: none;
+	border-radius: 0px;
+	margin: 0px;
+	font-size: 15px;
+	color: white;
+	background-color: black;
+}
+#btn-open_port{
+    width: 203px;
+}
+
+
+#div-left{
+    float: left;
+    width: 700px;
+}
+#div-right{
+    float: left;
+    margin-left: 10px;
+}
+#div-power_cycle-top{
+    float: left
+    border: gray solid thin;
+}
+#div-power_cycle-left{
+    float: left;
+    border: gray solid thin;
+}
+#div-power_cycle-right{
+    float: left;
+    border: gray solid thin;
+    margin-left: 10px;
+}
+#div-power_cycle-bottom{
+    width: 692px;
+    float: left;
+    border: gray solid thin;
+}
+
+
+#serial_ports{
+    margin: 5px 5px 5px;
+}
+#div-port-setting{
+    border: gray solid thin;
+}
+#select-port{
+	width: 203px;
+	font-size: 15px;
+	background-color: black;
+	color: white;
+}
+#port-setting select{
+    width: 105px;
+    background: black;
+}
+
+#btn-open_port{
+    background: gray;
+}
+
+#port_message{
+    color: black;
+    margin-left: 5px;
+    background: white;
+}
+/*message print*/
+#power_cycle-print{
+    overflow-y: scroll;
+	list-style-type: none;
+	width: 450px;
+	height: 370px;
+	margin: 5px 5px 5px;
+	padding: 2px 4px;
+	border: gray solid thin;
+	background: black;
+}
+/*Popup Window*/
+#window_popup_setting_power_cycle{
+    display: none;
+}
+
+#power-cycle-setting-form select{
+	background-color: black;
+	color: white;
+	font-size: 15px;
+    border: white solid thin;
+}
+
+input.power_cycle_options{
+	font-size: 12px;
+	color: black;
+}

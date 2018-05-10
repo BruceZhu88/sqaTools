@@ -1,0 +1,422 @@
+{% extends 'base.html' %}
+{% block title %}WifiSpeaker{% endblock %}
+{% block popup_window %}
+<div class="window_popup_setting" id="window_popup_setting_ota">
+    <div style="float: left">
+        <form id="ota-auto-update-setting-form" autocomplete="off" method="post" action="">
+            <fieldset class="setting-fieldset">
+                <legend class="setting-legend">Settings</legend>
+                <table>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_total_times" for="set_total_times">Total Times: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_total_times" name="set_total_times" class="setting" type="text" value="" maxlength="10" placeholder="e.g. 10">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_low_version" for="set_low_version">Low Version: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_low_version" name="set_low_version" type="text" class="setting" value="" maxlength="25" placeholder="e.g. 1.0.14820.125922481">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_low_version_path" for="set_low_version_path">Low Version Path: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_low_version_path" name="set_low_version_path" type="text" class="setting" value="" maxlength="100" placeholder="e.g. D:\CA17\ase2ca17s810-release-1-0-14820-125922481">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_high_version" for="set_high_version">High Version: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_high_version" name="set_high_version" type="text" class="setting" maxlength="25" value="" placeholder="e.g. 1.0.15059.28653020">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_high_version_path" for="set_high_version_path">High Version Path: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_high_version_path" name="set_high_version_path" type="text" class="setting" maxlength="100" value="" placeholder="e.g. D:\CA17\ase2ca17s810-release-1-0-15059-28653020">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="reset" class="button_wifi_speaker" value="Reset" style="float: left;">
+                        </td>
+                        <td>
+                            <input type="submit" class="button_wifi_speaker" id="setting-button-submit" value="OK" style="float: left;">
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
+
+<div class="window_popup_setting" id="window_popup_setting_wifisetup">
+    <div style="float: left">
+        <form id="wifi-setup-setting-form" autocomplete="off" method="post" action="">
+            <fieldset class="setting-fieldset">
+                <legend class="setting-legend">Settings</legend>
+                <table>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_total_times_wifi_setup" for="set_total_times_wifi_setup">Total Times: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_total_times_wifi_setup" name="set_total_times_wifi_setup" class="setting" type="text" value="" maxlength="10">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_time_reset" for="set_time_reset">Time Reset: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_time_reset" name="set_time_reset" type="text" class="setting" value="" maxlength="10">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_ssid" for="set_ssid">SSID: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_ssid" name="set_ssid" type="text" class="setting" value="" maxlength="30">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <label id="lset_password" for="set_password">Password: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_password" name="set_password" type="text" class="setting" value="" maxlength="20">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">DHCP Mode: </td>
+                        <td>
+                            <select name="set_dhcp" id="set_dhcp">
+                                <option class="option" value="True">True</option>
+                                <option class="option" value="False">False</option>
+                                <option class="option" value="True&False">True&False</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="dhcp_false">
+                        <td class="label">
+                            <label id="lset_static_ip" for="set_static_ip">Static IP: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_static_ip" name="set_static_ip" type="text" class="setting" maxlength="15" value="">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr class="dhcp_false">
+                        <td class="label">
+                            <label id="lset_gateway" for="set_gateway">Gateway: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_gateway" name="set_gateway" type="text" class="setting" maxlength="15" value="">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr class="dhcp_false">
+                        <td class="label">
+                            <label id="lset_netmask" for="set_netmask">Netmask: </label>
+                        </td>
+                        <td class="field">
+                            <input id="set_netmask" name="set_netmask" type="text" class="setting" maxlength="15" value="">
+                        </td>
+                        <td class="status"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="reset" class="button_wifi_speaker" value="Reset" style="float: left;">
+                        </td>
+                        <td>
+                            <input type="submit" class="button_wifi_speaker" value="OK" style="float: left;">
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
+
+<div class="window_popup_setting" id="window_popup_setting_ase_log">
+    <div style="float: left">
+        <fieldset class="setting-fieldset">
+            <legend class="setting-legend">Log</legend>
+            <table>
+                <tr>
+                    <td class="label">
+                        <button id="log_submit_server" class="button_wifi_speaker">Submit Log (Server)</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <button id="log_download_local" class="button_wifi_speaker">Download Log (Local)</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <button id="log_get" class="button_wifi_speaker">Get Log file (log-nSDK)</button>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="label">
+                        <button id="log_clear" class="button_wifi_speaker">Clear Log files</button>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
+
+<div class="window_popup_setting" id="window_popup_setting_one_tap_ota">
+    <div style="float: left">
+        <fieldset class="setting-fieldset">
+            <legend class="setting-legend">One Tap OTA</legend>
+            <table>
+                <tr>
+                    <td class="label">
+                        <label id="lset_ota_path" for="set_ota_path">OTA Path: </label>
+                    </td>
+                    <td class="field">
+                        <input id="set_ota_path" name="set_ota_path" type="text" class="setting" maxlength="100" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="start_one_tap_ota" class="button_wifi_speaker" style="float: left;">Start</button>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block body %}
+
+<div id="div-left">
+    <div id="device-scan">
+        <h1>Device List:</h1>
+        <select id="select-device" size="12" ondblclick="SelectDevice()"></select>
+        <br>
+        <button id="scan-devices" class="button_wifi_speaker">Scan Devices</button><br>
+        <input type="text" title="Input your device ip" name="input-ip" id="input-ip" placeholder="e.g. 192.168.1.101" required>
+        <button id="go-ip" class="button_wifi_speaker">Go</button>
+        <br><p id="ip-error" style="color:red;" hidden="hidden">Illegal IP address</p>
+    </div>
+
+    <div id="info-show">
+        <h4>INFO:</h4>
+        <div id="div-info-display">
+            <table id="info-display">
+                <tbody>
+                    <tr>
+                        <td>Product Name</td>
+                        <td id="deviceName"><input type="text" id="device_name_input" title="Change product name" onchange="change_device_name(this.value)"></td>
+                    </tr>
+                    <tr>
+                        <td>ASE (FEP)</td>
+                        <td id="device_versions"></td>
+                    </tr>
+                    <tr>
+                        <td>IP Address</td>
+                        <td id="ip"></td>
+                    </tr>
+                    <tr>
+                        <td>Serial number</td>
+                        <td id="sn"></td>
+                    </tr>
+                    <tr>
+                        <td>BT Reconnect</td>
+                        <td>
+                            <select name="bt_reconnect_mode" id="bt_reconnect_mode" title="Change reconnect mode">
+                                <option class="option" value="Manual">Manual</option>
+                                <option class="option" value="Automatic">Automatic</option>
+                                <option class="option" value="Disable">Disable</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>BT Open</td>
+                        <td>
+                            <input type="checkbox" id="bt_open" value="bt_open" name="bt_open">
+                            <button id="bt_pair" class="bt_pair" style="color: white; background-color: black; display: none">Pair</button>
+                            <button id="bt_cancel_pair" class="bt_pair" style="color: white; background-color: black; display: none">Cancel</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>BT Paired</td>
+                        <td>
+                            <ul id="bt_paired" title="Double click to remove paired BT"></ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button id="get_current_source" class="button_wifi_speaker_2">Source </button>
+                        </td>
+                        <td id="current_source"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button id="refresh" class="button_wifi_speaker_2">Refresh</button>
+                        </td>
+                        <td>
+                            <button id="factory_reset" class="button_wifi_speaker_2">Factory Reset</button>
+                            <button id="unblock" class="button_wifi_speaker_2" style="float: right;">Unblock</button>
+                        </td>
+                        <td>
+                            <button id="go_web_setting" class="button_wifi_speaker_2">WebPage</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button id="one_tap_ota" class="button_wifi_speaker">One Tap OTA</button>
+        <button id="ase_log" class="button_wifi_speaker">Log</button>
+        <button id="detect_standby" class="button_wifi_speaker">Detect Standby</button>
+        <br>
+        <button id="ota-auto-update" class="button_wifi_speaker">Auto Update OTA</button>
+        <button id="auto-setup-wifi" class="button_wifi_speaker">Auto Setup Wifi</button>
+        <!--<br>
+        <button id="back" class="button_wifi_speaker" onclick="button_back()">Back</button> -->
+    </div>
+</div>
+
+<div id="ota_status">
+    <h1>Running</h1>
+    <table>
+        <tr>
+            <td>Start Time</td>
+            <td id="start_time"></td>
+        </tr>
+        <tr>
+            <td>Elapsed Time</td>
+            <td id="elapsed_time"></td>
+        </tr>
+        <tr>
+            <td>Total Times</td>
+            <td id="total_times">0</td>
+        </tr>
+        <tr>
+            <td>High Version</td>
+            <td id="high_version"></td>
+        </tr>
+        <tr>
+            <td>Low Version</td>
+            <td id="low_version"></td>
+        </tr>
+        <tr>
+            <td>Pass_upgrade</td>
+            <td id="pass_upgrade">0/0 (Upgrade)</td>
+        </tr>
+        <tr>
+            <td>Pass_downgrade</td>
+            <td id="pass_downgrade">0/0 (Downgrade)</td>
+        </tr>
+        <tr>
+            <td>Network Error</td>
+            <td id="network_error">0</td>
+        </tr>
+    </table>
+    <br><br>
+    <a class="a_btn" href="{{url_for('exit_run')}}">Exit</a>
+</div>
+
+<div id="wifi_setup_status">
+    <h1>Running</h1>
+    <table>
+        <tr>
+            <td>Start Time</td>
+            <td id="start_time_wifi_setup"></td>
+        </tr>
+        <tr>
+            <td>Elapsed Time</td>
+            <td id="elapsed_time_wifi_setup"></td>
+        </tr>
+        <tr>
+            <td>Total Times</td>
+            <td id="total_times_wifi_setup">0</td>
+        </tr>
+        <tr>
+            <td>Time Reset</td>
+            <td id="time_reset"></td>
+        </tr>
+        <tr>
+            <td>SSID</td>
+            <td id="ssid"></td>
+        </tr>
+        <tr>
+            <td>DHCP</td>
+            <td id="dhcp"></td>
+        </tr>
+        <tr>
+            <td>Pass</td>
+            <td id="pass_wifi_setup">0/0</td>
+        </tr>
+    </table>
+    <br><br>
+    <a class="a_btn" href="{{url_for('exit_run')}}">Exit</a>
+</div>
+
+<div id="div-right">
+	<div id="log">
+		<div class="title_events_logs">
+			<span>Events Print:</span>
+		</div>
+		<div id="log-print">
+			<ul id="EventsLog" class="Logs-list"></ul>
+		</div>
+        <div>
+            <button id="clear_print" class="button_wifi_speaker">Clear</button>
+        </div>
+	</div>
+</div>
+<link rel="stylesheet" href="{{url_for('static', filename='css/WifiSpeaker.css')}}">
+<script src="{{url_for('static', filename='js/wifi_speaker.js')}}"></script>
+{% endblock %}

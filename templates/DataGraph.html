@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}DataGraph{% endblock %}
+
+{% block body %}
+<div id="main" style="height:600px; background-color:white;"></div>
+
+<div>
+    <form id="graph_data" method="POST" enctype="multipart/form-data" action="{{url_for('upload_file')}}">
+      <input id="file_path" type="file" name="file" accept="text/plain" style="border: gray solid thin; color: black;">
+      <input type="submit" value="Upload" style="color: black;">
+    </form>
+    <span id="data_file" style="color: black;">{{name}}</span>
+</div>
+
+<script src="{{url_for('static', filename='js/DataGraph.js')}}"></script>
+{% endblock %}

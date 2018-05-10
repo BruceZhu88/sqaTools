@@ -1,0 +1,10 @@
+.btn_automate{
+	padding: 8px 10px;
+	border: gray solid thin;
+	outline: none;
+	border-radius: 0px;
+	margin: 0px;
+	font-size: 15px;
+	color: white;
+	background-color: black;
+}

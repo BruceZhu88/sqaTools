@@ -1,0 +1,26 @@
+#qrgenerate-box {
+    outline: 0;
+    width: 500px;
+    padding: 10px;
+    padding-right: 24px;
+}
+
+#qr-content {
+    width: 100%;
+    outline: 0;
+    height: 296px;
+    resize: none;
+    font-size: 16px;
+    color: black;
+}
+#div-code_pic {
+    padding: 10px;
+}
+#code_pic {
+    background: white;
+    width: 296px;
+    height: 296px;
+}
+#btn_generate {
+    background: black;
+}

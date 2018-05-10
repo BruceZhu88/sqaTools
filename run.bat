@@ -1,0 +1,2 @@
+python sqaTools.py
+pause

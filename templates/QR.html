@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}QR Code{% endblock %}
+{% block body %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/QR.css')}}">
+<div id="qr-box">
+    <div id="qrgenerate-box" style="float: left;">
+        <div class="textarea-box " id="textarea-box">
+            <textarea id="qr-content" name="text" placeholder="Please input text"></textarea>
+        </div>
+
+    </div>
+    <div style="float: left;">
+        <button id="btn_generate">Generate</button>
+    </div>
+    <div id="div-code_pic" style="float: left;">
+        <table>
+            <tbody>
+                <tr>
+                    <td id="code_pic" style="text-align:center;">
+                        <span id="qrimage" style="color: black;">Input your text on the left</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="{{url_for('static', filename='js/qr.js')}}"></script>
+{% endblock %}

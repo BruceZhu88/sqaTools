@@ -1,0 +1,131 @@
+input.setting{
+	width: 350px;
+	height: 30px;
+	font-size: 12px;
+	color: black;
+	border-radius: 10px;
+}
+input#input-ip {
+	width: 200px;
+	height: 30px;
+	font-size: 15px;
+	color: black;
+	border-radius: 10px;
+}
+#deviceName input {
+    width: 250px;
+    height: 30px;
+    background: black;
+    color: white;
+    border-width: 1px;
+}
+.button_wifi_speaker, .a_btn{
+	padding: 8px 10px;
+	border: gray solid thin;
+	outline: none;
+	border-radius: 20px;
+	margin: 10px;
+	font-size: 15px;
+	color: white;
+	background-color: black;
+}
+.a_btn{
+	padding: 15px 15px 15px 15px;
+    text-decoration: none;
+}
+.button_wifi_speaker_2, .a_btn{
+	border: gray solid thin;
+	outline: none;
+	color: white;
+	background-color: black;
+}
+button:hover{
+	cursor: pointer;
+}
+
+td{
+	padding: 5px 20px;
+}
+div#info-show{
+    display: none;
+}
+div#div-info-display{
+    border:1px dashed #504848;
+    width: 550px;
+}
+div#div-left{
+	float: left;
+}
+div#div-right{
+	float: left;
+	padding-left: 25px;
+}
+div#ota_status, div#wifi_setup_status{
+	float: left;
+	font-size: 15px;
+	display: none;
+}
+div#log{
+    margin-left:100px;
+	display: none;
+}
+ul#EventsLog{
+    overflow-x: scroll;
+    overflow-y: scroll;
+    width:500px;
+    height:400px;
+    list-style-type: none;
+	margin-left: 0px;
+	padding: 2px 4px;
+	border-width: 1px;
+	border-color: white;
+	border-style: solid;
+	clear: both;
+}
+div#setting{
+	display: none;
+	/*display: block;*/
+}
+#select-device{
+	width: 400px;
+	font-size: 15px;
+	background-color: black;
+	color: white;
+}
+select#bt_reconnect_mode, select#set_dhcp {
+	background-color: black;
+	color: white;
+	font-size: 15px;
+	border-width: 1px;
+    border-color: white;
+    border-style: solid;
+}
+
+table#info-display{
+	font-size: 15px;
+}
+
+#bt_paired{
+    list-style-type: none;
+    margin-left: 0px;
+    padding: 2px 4px;
+    border-width: 1px;
+    border-color: white;
+    border-style: solid;
+    cursor:pointer;
+    clear: both;
+}
+#setting_tab, .title_events_logs{
+    padding:2px;
+    color:white;
+    font-size:20px;
+}
+/********************************
+	Popup Window
+********************************/
+#window_popup_setting_ota, #window_popup_setting_wifisetup{
+    display: none;
+}
+.dhcp_false{
+    display: none;
+}

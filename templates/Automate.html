@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Automate{% endblock %}
+{% block popup_window %}
+
+{% endblock %}
+
+{% block body %}
+<div>
+    <div>
+        <button id="bt_connect" class="btn_automate">BT Connect</button>
+        <button id="bt_disconnect" class="btn_automate">BT disconnect</button>
+        <button id="play" class="btn_automate">Play</button>
+        <button id="pause" class="btn_automate">Pause</button>
+    </div>
+    <div id="div-power_cycle-right">
+        <ul id="power_cycle-print"></ul>
+        <button id="clear_automate_log" class="btn_automate" style="margin: 15px 5px 5px;">Clear</button>
+    </div>
+</div>
+<link rel="stylesheet" href="{{url_for('static', filename='css/Automate.css')}}">
+<script src="{{url_for('static', filename='js/Automate.js')}}"></script>
+{% endblock %}

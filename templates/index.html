@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}TYM SQA Tools {{app_version}}{% endblock %}
+
+
+
+{% block body %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/clock.css')}}">
+<div style="float: left;">
+    <div class="fill">
+          <div class="reference"></div>
+              <div class="clock" id="utility-clock">
+                    <div class="centre">
+                          <div class="dynamic"></div>
+                          <div class="expand round circle-1"></div>
+                          <div class="anchor hour">
+                            <div class="element thin-hand"></div>
+                            <div class="element fat-hand"></div>
+                          </div>
+                          <div class="anchor minute">
+                            <div class="element thin-hand"></div>
+                            <div class="element fat-hand minute-hand"></div>
+                          </div>
+                          <div class="anchor second">
+                            <div class="element second-hand"></div>
+                          </div>
+                          <div class="expand round circle-2"></div>
+                     <div class="expand round circle-3"></div>
+              </div>
+          </div>
+    </div>
+
+
+</div>
+
+<script src="{{url_for('static', filename='js/clock.js')}}"></script>
+
+<script>
+	$("#home").addClass("active");
+</script>
+{% endblock %}
