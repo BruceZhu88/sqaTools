@@ -1,3 +1,7 @@
+
+OS system: Windows
+Python version: 3.6.5
+
 How to run:
   python sqaTools.py or run run.bat
 
