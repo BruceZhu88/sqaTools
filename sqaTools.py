@@ -69,7 +69,7 @@ main_config = Config(main_cfg_path)
 main_config.cfg_load()
 main_cfg = main_config.cfg
 
-ase_ota_setting = main_cfg.get('WifiSpeaker', 'ase_ota_setting')
+ase_ota_setting_path = main_cfg.get('WifiSpeaker', 'ase_ota_setting')
 status_running = main_cfg.get('WifiSpeaker', 'status_running')
 wifi_setup_ini_path = main_cfg.get('WifiSpeaker', 'wifi_setup')
 wifi_setup_cfg = Config(wifi_setup_ini_path)
@@ -328,7 +328,7 @@ def one_tap_ota():
     files = {
         'file': open(file_path, 'rb')
     }
-    if ase_info.ota_update(ip, files=files) == 200:
+    if ase_info.ota_update(ip, files) == 200:
         status = ase_info.trigger_update(ip)
     else:
         logger.debug("Upload ASE OTA file failed!")
@@ -340,10 +340,9 @@ def page_info():
     return jsonify(PAGE_INFO)
 
 
-@app.route('/ase_ota_setting', methods=['GET'])
-def ase_ota_setting():
-    ase_ota_setting = './data/ase_ota_setting.json'
-    settings = load(ase_ota_setting)
+@app.route('/get_ota_setting', methods=['GET'])
+def get_ota_setting():
+    settings = load(ase_ota_setting_path)
     return jsonify(settings)
 
 
@@ -354,7 +353,7 @@ def ota_auto_update():
     if request.method == 'POST':
         store(status_json, {"aseOtaUpdate": "1"})
         setting_values = request.form.to_dict()
-        store(ase_ota_setting, setting_values)
+        store(ase_ota_setting_path, setting_values)
         _thread.start_new_thread(aseUpdate(socketio).start_ota, ())
         return jsonify({"": ""})
     else:
@@ -363,6 +362,7 @@ def ota_auto_update():
 
 
 def ase_ota_thread():
+    print(4)
     while PAGE_INFO['page'] == 'wifi_speaker':
         socketio.sleep(1)
         if not thread_ase_ota.is_alive():
@@ -373,10 +373,10 @@ def ase_ota_thread():
 @socketio.on('ota_auto_update', namespace='/wifi_speaker/test')
 def ota_auto_update(msg):
     global thread_ase_ota
-    store(ase_ota_setting, msg)
+    store(ase_ota_setting_path, msg)
     # thread.start_new_thread(aseUpdate(socketio).start_ota, ())
     with thread_lock:
-        thread_ase_ota = socketio.start_background_task(target=AseUpdate(socketio).start_ota)
+        thread_ase_ota = socketio.start_background_task(target=AseUpdate(socketio, ase_ota_setting_path).start_ota)
         socketio.start_background_task(target=ase_ota_thread)
 
 

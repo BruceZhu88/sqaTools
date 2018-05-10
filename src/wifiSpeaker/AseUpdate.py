@@ -14,10 +14,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 class AseUpdate(object):
-    def __init__(self, socketio):
+    def __init__(self, socketio, ota_setting_path):
         self.socketio = socketio
         self.log = Logger("wifi_speaker").logger()
-        with open("./data/aseOtaSetting.json") as json_file:
+        with open(ota_setting_path) as json_file:
             data = json.load(json_file)
             # parent_path = os.path.realpath(os.path.join(os.getcwd(), ".."))
         self.low_version_path = data["low_version_path"]

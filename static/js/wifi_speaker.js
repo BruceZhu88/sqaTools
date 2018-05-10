@@ -80,7 +80,7 @@ $(document).ready(function(){
 
 	$('button#ota-auto-update').click(function(event) {
 		popup_window_setting("ota");
-		$.ajax({url:'ase_ota_setting', type:'GET', dataType:'json'})
+		$.ajax({url:'get_ota_setting', type:'GET', dataType:'json'})
 		.done(function(data){
 			for (name in data) {
 				$('#set_'+name).val(data[name]);

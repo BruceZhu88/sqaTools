@@ -6,14 +6,16 @@ from src.common.Logger import Logger
 logger = Logger("main").logger()
 
 
-def store(file_name, data):
-    with open(file_name, 'w') as json_file:
+def store(file_path, data):
+    path = os.path.abspath(file_path)
+    with open(path, 'w') as json_file:
         # json.dump(json.dumps(data), json_file)
         json_file.write(json.dumps(data))
 
 
-def load(file_name):
-    with open(file_name) as json_file:
+def load(file_path):
+    path = os.path.abspath(file_path)
+    with open(path) as json_file:
         data = json.load(json_file)
     return data
 
