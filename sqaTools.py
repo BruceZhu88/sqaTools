@@ -306,7 +306,7 @@ def thread_ota_status_check(ip):
         if num >= 60:   # 180s timeout
             socketio.emit("ota_check_over", namespace="/wifi_speaker/test")
             return
-        if ase_info.check_url_status("http://{}/index.fcgi".format(ip), timeout=6):
+        if check_url_status("http://{}/index.fcgi".format(ip), timeout=6):
             socketio.emit("ota_check_over", namespace="/wifi_speaker/test")
             return
 
@@ -321,7 +321,7 @@ def one_tap_ota():
     status = ""
     ip = request.form.to_dict().get("ip")
     file_path = r'{}'.format(request.form.to_dict().get("file_path"))
-    if not ase_info.check_url_status("http://{}/index.fcgi".format(ip), timeout=6):
+    if not check_url_status("http://{}/index.fcgi".format(ip), timeout=6):
         return jsonify({"status": "device disconnect"})
     if not os.path.exists(file_path):
         return jsonify({"status": "file error"})
