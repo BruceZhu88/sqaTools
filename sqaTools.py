@@ -642,7 +642,7 @@ def generate():
 @socketio.on('WinSCP', namespace='/test')
 def win_scp():
     path = '"{}\config\WinSCP\WinSCP.exe"'.format(os.getcwd())
-    win32api.ShellExecute(0, 'open', path, '', '', 1)
+    # win32api.ShellExecute(0, 'open', path, '', '', 1)
 
 
 if __name__ == '__main__':
