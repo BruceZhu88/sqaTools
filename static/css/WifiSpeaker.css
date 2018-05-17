@@ -105,6 +105,13 @@ table#info-display{
 	font-size: 15px;
 }
 
+.time_print{
+    font-weight: bold;
+    font-size: 15px;
+}
+.indent{
+    padding-left: 2.5em;
+}
 #bt_paired{
     list-style-type: none;
     margin-left: 0px;

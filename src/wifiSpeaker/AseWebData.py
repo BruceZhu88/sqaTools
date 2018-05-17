@@ -42,6 +42,38 @@ clearLogs_para = {
 beo_device = "http://{}:8080/BeoDevice/"
 current_source = "http://{}:8080/BeoZone/Zone/ActiveSourceType"
 # {"sourceType":{"type":"BLUETOOTH"},"friendlyName":"Bluetooth"}
+network_settings = "http://{}:8080/BeoDevice/networkSettings"
+bluetooth_settings = "http://{}:8080/BeoDevice/bluetoothSettings"
+standby_status = "http://{}:8080/BeoDevice/powerManagement/standby"
+# "standby":{"powerState":"standby"
+
+white_space = '_0_white_space_0_'
+
+
+def wifi_settings(ssid, key, encryption, dhcp, ip, gateway, netmask):
+    # _0_white_space_0_ is temporarily replace " ", because " " will be encoded to "+" when urlencode
+    ssid = ssid.replace(' ', white_space)
+    wireless = {"dhcp": dhcp,
+                "dns": ["", ""],
+                "gateway": gateway,
+                "encryption": encryption,
+                "ip": ip,
+                "ssid": ssid,
+                "netmask": netmask,
+                "key": key}
+    wired = {"dhcp": dhcp,
+             "dns": ["", ""],
+             "gateway": "",
+             "ip": "",
+             "netmask": ""}
+    network_profile = {"wireless": wireless,
+                       "wired": wired,
+                       "type": "automatic", }
+    value = {"networkProfile": network_profile,
+             "type": "networkProfile", }
+    wifi_value = {"path": "BeoWeb:/network", "roles": "activate",
+                  "value": value}
+    return wifi_value
 
 
 def bt_remove_para(bt_mac):
@@ -53,6 +85,7 @@ def bt_remove_para(bt_mac):
 
 
 def set_device_name(name):
+    name = name.replace(' ', white_space)
     return {"path": "settings:/deviceName", "roles": "value",
             "value": {"type": "string_", "string_": name}}
 

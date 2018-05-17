@@ -91,6 +91,9 @@ class WifiSetup(object):
             self.print_log("This is the %d times " % cycle)
             for index in DHCP:
                 dhcp = index
+                static_ip, static_gateway, static_netmask= '', '', ''
+                if not dhcp:
+                    static_ip, static_gateway, static_netmask = ip, gateway, netmask
                 self.print_log("Set DHCP={}".format(dhcp))
                 self.reset_and_wait(self.ip, time_reset)
                 while True:
@@ -103,7 +106,7 @@ class WifiSetup(object):
 
                 if not self.check_wifi_status("http://192.168.1.1/index.fcgi#Fts/Network"):
                     return
-                if self.ase_info.setup_wifi(ssid, key, dhcp, ip, gateway, netmask, "192.168.1.1"):
+                if self.ase_info.setup_wifi(ssid, key, dhcp, static_ip, static_gateway, static_netmask, "192.168.1.1"):
                     self.print_log("Wifi setup command has been sent!")
                     if self.wifi.find_wifi(ssid):
                         self.wifi.connect_wifi(ssid)

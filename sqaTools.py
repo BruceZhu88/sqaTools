@@ -165,58 +165,66 @@ def test_connect():
 
 @app.route('/get_info', methods=['GET'])
 def get_info():
+    global INFO
     # text = request.form.to_dict().get("text")  ---> if methods=post
-    text = request.args.get("text")  # ---> if methods=get
+    text = request.args.get("ip")  # ---> if methods=get
     # p = re.compile(r'(?:(?:[0,1]?\d?\d|2[0-4]\d|25[0-5])\.){3}(?:[0,1]?\d?\d|2[0-4]\d|25[0-5])')
     try:
         ip = re.findall('\((.*)\)', text)[0]
     except:
         ip = text
-    ip_address = "http://" + ip + "/index.fcgi"
-    if not check_url_status(ip_address, timeout=6):
+    INFO = ase_info.thread_get_info(ip)
+    if not INFO:
         return jsonify({"error": "error", "ip": ip})
-    basic_info = ase_info.get_info("basicInfo", ip)
-    beo_device = ase_info.get_info('BeoDevice', ip)
-    INFO["device_versions"] = '{} ({})'.format(beo_device['version'], basic_info["appVersion"])
-    INFO["sn"] = beo_device['serialNumber']
-    INFO["deviceName"] = beo_device['productFriendlyName']
-    INFO["bt_reconnect"] = ase_info.get_info("bt_reconnect", ip)
-    INFO["bt_devices"] = ase_info.get_info('bt', ip)
-    INFO["bt_open"] = ase_info.get_info('bt_open', ip)
-    INFO["current_source"] = ase_info.get_current_source(ip)
-    INFO["ip"] = ip
     return jsonify(INFO)
 
 
-@socketio.on('bt_open', namespace='/wifi_speaker/test')
-def bt_open(msg):
-    ase_info.bt_open_set(msg["enable"], INFO["ip"])
+@app.route('/get_network_settings', methods=['GET'])
+def get_network_settings():
+    network = ase_info.get_info('network_settings', INFO['ip'])
+    if network == 'NA' or network == 'error':
+        return jsonify({"error": "error"})
+    return jsonify(network)
 
 
-@socketio.on('bt_pair', namespace='/wifi_speaker/test')
-def bt_pair(msg):
-    ase_info.pair_bt(msg['cmd'], INFO['ip'])
+@app.route('/bt_open_set', methods=['POST'])
+def bt_open_set():
+    enable = request.form.to_dict().get('enable')
+    status = ase_info.bt_open_set(enable, INFO["ip"])
+    return jsonify({'status': status})
+
+
+# @socketio.on('bt_pair', namespace='/wifi_speaker/test')
+@app.route('/bt_pair', methods=['POST'])
+def bt_pair():
+    cmd = request.form.to_dict().get('cmd')
+    status = ase_info.pair_bt(cmd, INFO['ip'])
+    return jsonify({'status': status})
 
 
 def thread_check_standby(ip):
     num = 0
     start_time = time.time()
     while PAGE_INFO['page'] == 'wifi_speaker':
-        socketio.sleep(1)
-        num = num + 1
         if num >= 60 * 30:   # timeout
             socketio.emit("check_standby", {"status": "timeout"}, namespace="/wifi_speaker/test")
             return
-        if ase_info.get_current_source(ip) == 'Standby':
+        status = ase_info.get_info('get_standby', ip)
+        if status == 'NA':
+            socketio.emit("check_standby", {"status": "error"}, namespace="/wifi_speaker/test")
+            return
+        if status == 'Standby':
             tmp_time = time.time() - start_time
             m = int(tmp_time / 60)
-            s = round(tmp_time % 60)
+            s = int(tmp_time % 60)
             decade_m = '0' if int(m / 10) == 0 else ''
             decade_s = '0' if int(s / 10) == 0 else ''
             elapsed_time = '{}{}m{}{}s'.format(decade_m, m, decade_s, s)
             socketio.emit("check_standby", {"status": "Standby", "elapsed_time": elapsed_time},
                           namespace="/wifi_speaker/test")
             return
+        socketio.sleep(1)
+        num = num + 1
 
 
 @socketio.on('detect_standby', namespace='/wifi_speaker/test')
@@ -226,8 +234,14 @@ def detect_standby():
 
 @app.route('/get_current_source', methods=['GET'])
 def get_current_source():
-    source = ase_info.get_current_source(INFO['ip'])
+    source = ase_info.get_info('current_source', INFO['ip'])
     return jsonify({'source': source})
+
+
+@app.route('/get_standby', methods=['GET'])
+def get_standby():
+    status = ase_info.get_info('get_standby', INFO['ip'])
+    return jsonify({'status': status})
 
 
 # return render_template('WifiSpeaker.html', info=info)
@@ -259,33 +273,33 @@ def log_clear():
 
 @app.route('/change_product_name', methods=['POST'])
 def change_product_name():
-    ip = request.form.to_dict().get("ip")
+    # ip = request.form.to_dict().get("ip")
     product_name = request.form.to_dict().get("name")
-    ase_info.change_product_name(product_name, ip)
-    return jsonify({})
+    status = ase_info.change_product_name(product_name, INFO['ip'])
+    return jsonify({"status": status})
 
 
 @app.route('/ase_reset', methods=['POST'])
 def ase_reset():
-    ip = request.form.to_dict().get("ip")
-    ase_info.reset(ip)
-    return jsonify({})
+    # ip = request.form.to_dict().get("ip")
+    status = ase_info.reset(INFO['ip'])
+    return jsonify({'status': status})
 
 
 @app.route('/ase_set_bt_reconnect_mode', methods=['POST'])
 def ase_set_bt_reconnect_mode():
-    ip = request.form.to_dict().get("ip")
+    # ip = request.form.to_dict().get("ip")
     mode = request.form.to_dict().get("mode")
-    ase_info.bt_reconnect_set(mode, ip)
-    return jsonify({})
+    status = ase_info.bt_reconnect_set(mode, INFO['ip'])
+    return jsonify({'status': status})
 
 
 @app.route('/bt_remove', methods=['POST'])
 def bt_remove():
-    ip = request.form.to_dict().get("ip")
+    # ip = request.form.to_dict().get("ip")
     bt_mac = request.form.to_dict().get("bt_mac")
-    ase_info.bt_remove(bt_mac, ip)
-    return jsonify({})
+    status = ase_info.bt_remove(bt_mac, INFO['ip'])
+    return jsonify({'status': status})
 
 
 @app.route('/unblock', methods=['POST'])

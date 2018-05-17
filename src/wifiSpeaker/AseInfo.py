@@ -33,8 +33,17 @@ class AseInfo(object):
         self.devices_list = []
         self.threads = []
         self.status = 0
+        self.INFO = {}
 
     def transfer_data(self, request_way, ip, value, timeout=None):
+        """
+        :param request_way:
+        :param ip:
+        :param value:
+        :param timeout:
+        :return:
+        %27 = ', %22 = ", + = 'space'
+        """
         value_str = parse.urlencode(value, encoding="utf-8")
         if "+" in value_str:
             value_str = value_str.replace('+', '')
@@ -44,6 +53,8 @@ class AseInfo(object):
             value_str = value_str.replace('False', 'false')
         if "%27" in value_str:
             value_str = value_str.replace('%27', '%22')
+        if white_space in value_str:
+            value_str = value_str.replace(white_space, '+')
         if request_way == "get":
             url = self.urlGetData.format(ip, value_str, timeout=timeout)
             return request_url(url)
@@ -74,29 +85,60 @@ class AseInfo(object):
     def get_info(self, x, ip, timeout=None):
         try:
             if x == 'basicInfo':
-                resp_value = request_url('http://{0}/index.fcgi'.format(ip))['text']
-                data = re.findall('dataJSON = \'(.*)\';', resp_value)[0]
-                resp_value = request_url('http://{0}/page_status.fcgi'.format(ip))['text']
-                product_id = re.findall('var productId = \'(.*)\';', resp_value)[0]
+                r = request_url('http://{0}/index.fcgi'.format(ip))
+                if r.get('status') != 200:
+                    return 'error'
+                text = re.findall('dataJSON = \'(.*)\';', r.get('text'))[0]
+                data = json.loads(text, encoding='utf-8')
+                '''
+                r = request_url('http://{0}/page_status.fcgi'.format(ip))['text']
+                product_id = re.findall('var productId = \'(.*)\';', r)[0]
                 jd = json.loads(product_id, encoding='utf-8')
                 sn = ''
                 for i in jd["beoGphProductIdData"]["serialNumber"]:
                     sn = sn + str(i)
-                data = json.loads(data, encoding='utf-8')
-                info = {'modelName': data['beoMachine']['modelName'],
-                        'model': data['beoMachine']['model'],
-                        'productName': data['beoMachine']['setup']['productName'],
-                        'bootloaderVersion': data['beoMachine']['fepVersions']['bootloaderVersion'],
-                        'appVersion': data['beoMachine']['fepVersions']['appVersion'],
-                        'sn': sn}
+                '''
+                beo_machine = data.get('beoMachine')
+                fep_versions = beo_machine.get('fepVersions')
+                info = {'modelName': beo_machine.get('modelName'),
+                        'model': beo_machine.get('model'),
+                        'productName': beo_machine.get('setup').get('productName'),
+                        'bootloaderVersion': fep_versions.get('bootloaderVersion'),
+                        'appVersion': fep_versions.get('appVersion')
+                        }
+                self.INFO['appVersion'] = info['appVersion']
                 return info
-            if x == 'BeoDevice':
-                r = request_url(beo_device.format(ip))['text']
-                data = json.loads(r, encoding='utf-8')
-                info = {'productType': data['beoDevice']['productId']['productType'],
-                        'serialNumber': data['beoDevice']['productId']['serialNumber'],
-                        'productFriendlyName': data['beoDevice']['productFriendlyName']['productFriendlyName'],
-                        'version': data['beoDevice']['software']['version']}
+            elif x == 'BeoDevice':
+                r = request_url(beo_device.format(ip))
+                if r.get('status') != 200:
+                    return 'error'
+                data = json.loads(r.get('text'), encoding='utf-8')
+                beo_info = data.get('beoDevice')
+                beo_productid = beo_info.get('productId')
+                info = {'productType': beo_productid.get('productType'),
+                        'serialNumber': beo_productid.get('serialNumber'),
+                        'productFriendlyName': beo_info.get('productFriendlyName').get('productFriendlyName'),
+                        'version': beo_info.get('software').get('version')
+                        }
+                self.INFO["sn"] = info['serialNumber']
+                self.INFO["deviceName"] = info['productFriendlyName']
+                self.INFO["version"] = info['version']
+                return info
+            elif x == 'bluetoothSettings':
+                r = request_url(bluetooth_settings.format(ip))
+                if r.get('status') != 200:
+                    return 'error'
+                data = json.loads(r.get('text'), encoding='utf-8')
+                bluetooth = data.get('profile').get('bluetooth')
+                device_settings = bluetooth.get('deviceSettings')
+                always_open = device_settings.get('alwaysOpen')
+                reconnect_mode = device_settings.get('reconnectMode')
+                devices = bluetooth.get('devices')
+                bt_devices = devices.get('device')
+                info = {'bt_open': always_open,
+                        'bt_reconnect_mode': reconnect_mode,
+                        'bt_devices': bt_devices}
+                self.INFO['bluetoothSettings'] = info
                 return info
             elif x == 'device_name':
                 data = self.transfer_data("get", ip, deviceName_para, timeout=timeout)['text']
@@ -105,40 +147,99 @@ class AseInfo(object):
             elif x == 'device_version':
                 data = self.transfer_data("get", ip, displayVersion_para)['text']
                 data = json.loads(data, encoding='utf-8')
-                return data[0]["string_"]
+                return data[0].get("string_")
             elif x == 'wifi_device':
                 data = self.transfer_data("get", ip, WirelessSSID_para)['text']
                 data = json.loads(data, encoding='utf-8')
-                return data[0]["string_"]
+                return data[0].get("string_")
             # elif x == 'wifi_level':
             #    data = self.transfer_data("get", ip, wifiSignalLevel_para)
             #    return re.findall(':\\[(.+)\\]}', data)[0]
             elif x == 'volume_default':
                 data = self.transfer_data("get", ip, volumeDefault_para)['text']
                 data = json.loads(data, encoding='utf-8')
-                return data[0]["i32_"]
+                return data[0].get("i32_")
             elif x == 'volume_max':
                 data = self.transfer_data("get", ip, volumeMax_para)['text']
                 data = json.loads(data, encoding='utf-8')
-                return data[0]["i32_"]
+                return data[0].get("i32_")
             elif x == 'bt_open':
                 data = self.transfer_data("get", ip, pairingAlwaysEnabled_para)['text']
                 data = json.loads(data, encoding='utf-8')
-                return data[0]["bool_"]
+                value = data[0].get("bool_")
+                self.INFO['bt_open'] = value
+                return value
             elif x == 'bt_reconnect':
                 data = self.transfer_data("get", ip, autoConnect_para)['text']
                 data = json.loads(data, encoding='utf-8')
-                connect_mode = data[0]["bluetoothAutoConnectMode"]
+                connect_mode = data[0].get("bluetoothAutoConnectMode")
                 if connect_mode == 'manual':
-                    return 'Manual'
+                    mode = 'Manual'
                 elif connect_mode == 'automatic':
-                    return 'Automatic'
+                    mode = 'Automatic'
                 else:
-                    return 'Disable'
+                    mode = 'Disable'
+                self.INFO['bt_reconnect'] = mode
+                return mode
             elif x == 'bt':
                 data = self.transfer_data("getRows", ip, pairedPlayers_para)['text']
                 value = json.loads(data, encoding='GBK')  # Avoid chinese strings
+                self.INFO['bt_devices'] = value
                 return value
+            elif x == 'network_settings':
+                r = request_url(network_settings.format(ip))
+                if r.get('status') != 200:
+                    return 'error'
+                data = json.loads(r.get('text'), encoding='utf-8')
+                network_info = data.get('profile').get('networkSettings')
+                interfaces = network_info.get('interfaces')
+                active_interface = network_info.get('activeInterface')
+                # wired = interfaces.get('wired')
+                wireless = interfaces.get('wireless')
+                active_network = wireless.get('activeNetwork')
+                internet_reachable = 'Yes' if network_info.get('internetReachable') else 'No'
+                dhcp = 'Yes' if active_network.get('dhcp') else 'No'
+                if active_interface == 'wireless':
+                    info = {
+                        'Active Interface': 'Wi-Fi',
+                        'Internet Reachable': internet_reachable,
+                        'SSID': active_network.get('ssid'),
+                        'DHCP': dhcp,
+                        'Frequency': active_network.get('frequency').replace('ghz', ' GHz'),
+                        'Quality': active_network.get('quality'),
+                        'RSSI': active_network.get('rssi'),
+                        'Encryption': active_network.get('encryption').replace('Psk', '-PSK').replace(
+                            'Tkip', '(TKIP)').upper()
+                    }
+                else:
+                    info = {
+                        'Active Interface': 'Ethernet',
+                        'Internet Reachable': internet_reachable,
+                        'Wifi configured': 'Yes' if active_network.get('configured') else 'No',
+                        'DHCP': dhcp
+                    }
+                self.INFO['network_settings'] = info
+                return info
+            elif x == 'current_source':
+                r = request_url(current_source.format(ip))
+                if r.get('status') != 200:
+                    return 'error'
+                data = json.loads(r.get('text'), encoding='utf-8')
+                if len(data) == 0:
+                    source = 'None'
+                else:
+                    source = data.get('friendlyName')
+                self.INFO['current_source'] = source
+                return source
+            elif x == 'get_standby':
+                r = request_url(standby_status.format(ip))
+                if r.get('status') != 200:
+                    return 'error'
+                data = json.loads(r.get('text'), encoding='utf-8')
+                status = data.get('standby').get('powerState')
+                status = status.replace(status[0], status[0].upper())
+                self.INFO['standby_status'] = status
+                return status
             else:
                 return 'NA'
         except Exception as e:
@@ -155,49 +256,32 @@ class AseInfo(object):
         # elif pair == 'cancel':
         else:
             para = pairCancelBT_para
-        self.transfer_data("set", ip, para)
+        return self.transfer_data("set", ip, para)['status']
 
     def reset(self, ip):
-        self.transfer_data("set", ip, factoryResetRequest_para)
+        return self.transfer_data("set", ip, factoryResetRequest_para)['status']
 
     def change_product_name(self, name, ip):
-        self.transfer_data("set", ip, set_device_name(name))
+        return self.transfer_data("set", ip, set_device_name(name))['status']
 
     def log_submit(self, ip):
-        values = self.transfer_data("set", ip, logReport_para)
-        return values["status"]
+        return self.transfer_data("set", ip, logReport_para)["status"]
 
     def log_clear(self, ip):
-        values = self.transfer_data("set", ip, clearLogs_para)
-        return values["status"]
+        return self.transfer_data("set", ip, clearLogs_para)['status']
 
     def bt_open_set(self, open_enable, ip):
-        self.transfer_data("set", ip, set_pairing_mode(open_enable))
+        return self.transfer_data("set", ip, set_pairing_mode(open_enable))['status']
 
     def bt_remove(self, bt_mac, ip):
         bt_mac = bt_mac.replace(":", "_")
-        self.transfer_data("set", ip, bt_remove_para(bt_mac))
+        return self.transfer_data("set", ip, bt_remove_para(bt_mac))['status']
 
-    def bt_reconnect_set(self, status, ip):
-        if status == 'Manual':
-            mode = 'manual'
-        elif status == 'Automatic':
-            mode = 'automatic'
-        elif status == 'Disable':
+    def bt_reconnect_set(self, mode, ip):
+        if mode == 'disabled':
             mode = 'none'
-        else:
-            return
-        self.transfer_data("set", ip, set_bt_mode(mode))
+        return self.transfer_data("set", ip, set_bt_mode(mode))['status']
 
-    @staticmethod
-    def get_current_source(ip):
-        url = current_source.format(ip)
-        r = request_url(url)['text']
-        data = json.loads(r, encoding='utf-8')
-        if len(data) == 0:
-            return 'Standby'
-        else:
-            return data['friendlyName']
     """
     def status_dynamic(self, x, ip):
         device_volume_url = 'http://' + ip + '/api/getData?path=BeoSound%3A%2Fvolume&roles=value&'
@@ -223,26 +307,7 @@ class AseInfo(object):
         encryption = "wpa_psk"
         if key == "":
             encryption = "none"
-        wireless = {"dhcp": dhcp,
-                    "dns": ["", ""],
-                    "gateway": gateway,
-                    "encryption": encryption,
-                    "ip": ip,
-                    "ssid": ssid,
-                    "netmask": netmask,
-                    "key": key}
-        wired = {"dhcp": dhcp,
-                 "dns": ["", ""],
-                 "gateway": "",
-                 "ip": "",
-                 "netmask": ""}
-        network_profile = {"wireless": wireless,
-                           "wired": wired,
-                           "type": "automatic", }
-        value = {"networkProfile": network_profile,
-                 "type": "networkProfile", }
-        wifi_value = {"path": "BeoWeb:/network", "roles": "activate",
-                      "value": value}
+        wifi_value = wifi_settings(ssid, key, encryption, dhcp, ip, gateway, netmask)
         try:
             self.transfer_data("set", originalIp, wifi_value)
         except Exception as e:
@@ -293,13 +358,14 @@ class AseInfo(object):
         thread_status.start()
 
     def scan_devices(self, ip):
-        response = request_url(beo_device.format(ip), timeout=6)
+        response = request_url(beo_device.format(ip), timeout=5)
         # if not self.check_url_status("http://{}/index.fcgi".format(ip), timeout=6):  # timeout need modify
         if response['status'] != 200:
             return
         data = json.loads(response['text'], encoding='utf-8')
-        device_name = data['beoDevice']['productFriendlyName']['productFriendlyName']
-        model_name = data['beoDevice']['productId']['productType']
+        beo_info = data.get('beoDevice')
+        device_name = beo_info.get('productFriendlyName').get('productFriendlyName')
+        model_name = beo_info.get('productId').get('productType')
         # device_name = self.get_info("device_name", ip)
         # model_name = self.get_info("basicInfo", ip)['modelName']
         try:
@@ -327,6 +393,33 @@ class AseInfo(object):
 
     def return_devices(self):
         return {"status": self.status, "devices": self.devices_list}
+
+    # ==================================================================================================================
+
+    def thread_get_info(self, ip):
+        if not check_url_status(beo_device.format(ip), timeout=5):
+            return False
+        # self.devices_list.clear()
+        # basic_info = ase_info.get_info("basicInfo", ip)
+        # beo_device_info = ase_info.get_info('BeoDevice', ip)
+        self.INFO["ip"] = ip
+        info = ['BeoDevice', 'basicInfo', 'bluetoothSettings', 'current_source', 'get_standby']
+        # threads = []
+        for i in info:
+            self.get_info(i, ip)
+        '''
+            t = Thread(target=self.get_info, args=(i, ip))
+            t.setDaemon(True)
+            t.start()
+            threads.append(t)
+            # sleep(0.02)    # avoid network block
+        for td in threads:
+            td.join()
+        '''
+        self.INFO["device_versions"] = '{} ({} / {})'.format(
+            self.INFO.get('version'), self.INFO.get('appVersion'), self.INFO.get('sn'))
+        return self.INFO
+
     # ==================================================================================================================
 
     def send_cmd(self, ip, cmd):
@@ -358,6 +451,9 @@ class AseInfo(object):
         return path
 
     def download_log(self, ip, sn, script_path, save_path):
+        save_path = os.path.abspath(save_path)
+        if not os.path.exists(save_path):
+            os.mkdir(save_path)
         path, content = '', ''
         with open(script_path, 'r') as f:
             for l in f.readlines():
@@ -365,7 +461,7 @@ class AseInfo(object):
                 content = self.send_cmd(ip, cmd)
             url = re.findall(r'http:.*tgz', content)
             if len(url) > 0:
-                path = os.path.join(os.path.abspath(save_path), 'log_{}.tgz'.format(sn))
+                path = os.path.join(save_path, 'log_{}.tgz'.format(sn))
                 try:
                     request.urlretrieve(url[0], path)
                 except Exception as e:

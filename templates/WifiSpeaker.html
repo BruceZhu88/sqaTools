@@ -2,7 +2,7 @@
 {% block title %}WifiSpeaker{% endblock %}
 {% block popup_window %}
 <div class="window_popup_setting" id="window_popup_setting_ota">
-    <div style="float: left">
+    <div style="float: left;">
         <form id="ota-auto-update-setting-form" autocomplete="off" method="post" action="">
             <fieldset class="setting-fieldset">
                 <legend class="setting-legend">Settings</legend>
@@ -65,7 +65,7 @@
         </form>
     </div>
 
-    <div style="float: left">
+    <div style="float: left;">
         <a href="javascript: void(0);" class="close_popup_setting">
             <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
         </a>
@@ -73,7 +73,7 @@
 </div>
 
 <div class="window_popup_setting" id="window_popup_setting_wifisetup">
-    <div style="float: left">
+    <div style="float: left;">
         <form id="wifi-setup-setting-form" autocomplete="off" method="post" action="">
             <fieldset class="setting-fieldset">
                 <legend class="setting-legend">Settings</legend>
@@ -164,7 +164,7 @@
         </form>
     </div>
 
-    <div style="float: left">
+    <div style="float: left;">
         <a href="javascript: void(0);" class="close_popup_setting">
             <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
         </a>
@@ -172,7 +172,7 @@
 </div>
 
 <div class="window_popup_setting" id="window_popup_setting_ase_log">
-    <div style="float: left">
+    <div style="float: left;">
         <fieldset class="setting-fieldset">
             <legend class="setting-legend">Log</legend>
             <table>
@@ -209,7 +209,7 @@
 </div>
 
 <div class="window_popup_setting" id="window_popup_setting_one_tap_ota">
-    <div style="float: left">
+    <div style="float: left;">
         <fieldset class="setting-fieldset">
             <legend class="setting-legend">One Tap OTA</legend>
             <table>
@@ -230,7 +230,7 @@
         </fieldset>
     </div>
 
-    <div style="float: left">
+    <div style="float: left;">
         <a href="javascript: void(0);" class="close_popup_setting">
             <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
         </a>
@@ -261,7 +261,7 @@
                         <td id="deviceName"><input type="text" id="device_name_input" title="Change product name" onchange="change_device_name(this.value)"></td>
                     </tr>
                     <tr>
-                        <td>ASE (FEP)</td>
+                        <td>ASE (FEP/SN)</td>
                         <td id="device_versions"></td>
                     </tr>
                     <tr>
@@ -269,25 +269,21 @@
                         <td id="ip"></td>
                     </tr>
                     <tr>
-                        <td>Serial number</td>
-                        <td id="sn"></td>
-                    </tr>
-                    <tr>
                         <td>BT Reconnect</td>
                         <td>
                             <select name="bt_reconnect_mode" id="bt_reconnect_mode" title="Change reconnect mode">
-                                <option class="option" value="Manual">Manual</option>
-                                <option class="option" value="Automatic">Automatic</option>
-                                <option class="option" value="Disable">Disable</option>
+                                <option class="option" value="manual">Manual</option>
+                                <option class="option" value="automatic">Automatic</option>
+                                <option class="option" value="disabled">Disabled</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
                         <td>BT Open</td>
                         <td>
-                            <input type="checkbox" id="bt_open" value="bt_open" name="bt_open">
-                            <button id="bt_pair" class="bt_pair" style="color: white; background-color: black; display: none">Pair</button>
-                            <button id="bt_cancel_pair" class="bt_pair" style="color: white; background-color: black; display: none">Cancel</button>
+                            <input type="checkbox" id="bt_open_set" value="bt_open_set" name="bt_open_set" checked="checked" title="Change discovery mode">
+                            <button id="bt_pair" class="bt_pair" style="color: white; background-color: black; display: none;">Pair</button>
+                            <button id="bt_cancel_pair" class="bt_pair" style="color: white; background-color: black; display: none;">Cancel</button>
                         </td>
                     </tr>
                     <tr>
@@ -304,14 +300,18 @@
                     </tr>
                     <tr>
                         <td>
-                            <button id="refresh" class="button_wifi_speaker_2">Refresh</button>
+                            <button id="get_standby" class="button_wifi_speaker_2">Status </button>
+                        </td>
+                        <td id="standby_status"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button id="refresh" class="button_wifi_speaker_2" style="color:green;">Refresh</button>
                         </td>
                         <td>
-                            <button id="factory_reset" class="button_wifi_speaker_2">Factory Reset</button>
-                            <button id="unblock" class="button_wifi_speaker_2" style="float: right;">Unblock</button>
-                        </td>
-                        <td>
-                            <button id="go_web_setting" class="button_wifi_speaker_2">WebPage</button>
+                            <button id="factory_reset" class="button_wifi_speaker_2" style="color:red;">Factory Reset</button>
+                            <button id="unblock" class="button_wifi_speaker_2" style="margin-left:30px;">Unblock</button>
+                            <button id="go_web_setting" class="button_wifi_speaker_2" style="margin-left:30px;">WebPage</button>
                         </td>
                     </tr>
                 </tbody>
@@ -320,6 +320,7 @@
         <button id="one_tap_ota" class="button_wifi_speaker">One Tap OTA</button>
         <button id="ase_log" class="button_wifi_speaker">Log</button>
         <button id="detect_standby" class="button_wifi_speaker">Detect Standby</button>
+        <button id="get_network_settings" class="button_wifi_speaker">Network Scan</button>
         <br>
         <button id="ota-auto-update" class="button_wifi_speaker">Auto Update OTA</button>
         <button id="auto-setup-wifi" class="button_wifi_speaker">Auto Setup Wifi</button>

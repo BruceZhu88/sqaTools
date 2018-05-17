@@ -165,7 +165,7 @@ $(document).ready(function(){
 	$('button#go-ip').click(function(event){
 		var ip = $("input[name='input-ip']").val();
 		if (isValidIP(ip)) {
-		    get_info({"text":ip});
+		    get_info(ip);
 			$('div#device-scan').hide();
 			$('#info-show').show();
 			$("div#log").show();
@@ -193,56 +193,101 @@ $(document).ready(function(){
 
 	$("#bt_reconnect_mode").change(function(){
 	    var bt_mode = $(this).val();
-	    printLog("Change bluetooth reconnect mode to " + bt_mode);
-		text = {"ip": sessionStorage.getItem("ip"),"mode": bt_mode};
-		$.ajax({url:'ase_set_bt_reconnect_mode',type:'POST',dataType:'json', data:text});
+		text = {"mode": bt_mode};
+		$.ajax({url:'ase_set_bt_reconnect_mode',type:'POST',dataType:'json', data:text})
+		.done(function(data){
+            if (refresh_info(data['status'], true) == true) {
+                printLog("Changed bluetooth reconnect mode to " + bt_mode);
+            }
+		});
 	});
 
 	$('button#factory_reset').click(function(event){
-		var text = {"ip":sessionStorage.getItem("ip")};
-		$.ajax({url:'ase_reset', type:'POST',dataType:'json', data:text});
-		button_back();
+		// var text = {"ip":sessionStorage.getItem("ip")};
+		$.ajax({url:'ase_reset', type:'POST',dataType:'json'})
+		.done(function(data){
+		    if (refresh_info(data['status'], false) == true) {
+		        button_back();
+		    }
+		});
 	});
 
 	$('button#go_web_setting').click(function(event){
 	    //window.location.href='http://'+sessionStorage.getItem("ip")
-	    window.open('http://'+sessionStorage.getItem("ip"))
+	    window.open('http://'+sessionStorage.getItem("ip"));
 	});
 
-    $('input#bt_open').click(function(event){
+    $('input#bt_open_set').click(function(event){
         if ($(this).prop('checked') == true) {
-            printLog("Enable BT always open");
-            $('.bt_pair').hide();
-            socket.emit("bt_open", {"enable": true});
+            $.ajax({url:'bt_open_set',type:'POST',dataType:'json', data:{"enable": true}})
+            .done(function(data){
+                if (refresh_info(data['status'], true) == true) {
+                    printLog("Enabled BT always open");
+                    $('.bt_pair').hide();
+                }
+            });
         }
         else {
-            printLog("Disable BT always open");
-            $('.bt_pair').show();
-            socket.emit("bt_open", {"enable": false});
+            $.ajax({url:'bt_open_set',type:'POST',dataType:'json', data:{"enable": false}})
+            .done(function(data){
+                if (refresh_info(data['status'], true) == true) {
+                    printLog("Disabled BT always open");
+                    $('.bt_pair').show();
+                }
+            });
         }
 	});
 
     $('button#bt_pair').click(function(event){
-        printLog("Trigger BT pairing");
-	    socket.emit("bt_pair", {"cmd": "pair"});
+        $.ajax({url:'bt_pair',type:'POST',dataType:'json', data:{"cmd": "pair"}})
+        .done(function(data){
+            if (refresh_info(data['status'], true) == true) {
+                printLog("Trigger BT pairing");
+            }
+        });
 	});
 
     $('button#bt_cancel_pair').click(function(event){
-        printLog("Cancel BT pairing");
-	    socket.emit("bt_pair", {"cmd": "cancel"});
+	    $.ajax({url:'bt_pair',type:'POST',dataType:'json', data:{"cmd": "cancel"}})
+        .done(function(data){
+            if (refresh_info(data['status'], true) == true) {
+                printLog("Cancel BT pairing");
+            }
+        });
 	});
 
     $('button#get_current_source').click(function(event){
-        printLog("Refresh current source");
         $.ajax({url:'get_current_source',type:'GET', dataType:'json'})
 		.done(function(data){
-		    $('td#current_source').text(data['source'])
+		    if (data['source'] != 'error') {
+		        printLog("Refresh current source");
+                $('td#current_source').text(data['source'])
+		    }
+		    else {
+                prompt_error();
+		    }
+		});
+	});
+
+    $('button#get_standby').click(function(event){
+        $.ajax({url:'get_standby',type:'GET', dataType:'json'})
+		.done(function(data){
+		    if (data['status'] != 'error') {
+		        printLog("Check current power status");
+                $('td#standby_status').text(data['status'])
+		    }
+		    else {
+                prompt_error();
+		    }
 		});
 	});
 
     socket.on('check_standby', function(msg) {
         if (msg['status'] == 'Standby') {
             printLog("Your product enter Standby! Elapsed Time: "+msg['elapsed_time']);
+        }
+        else if (msg['status'] == 'error'){
+            printLog([['Seems disconnected with your product!', 'red']])
         }
         else {
             printLog('Timeout to detect Standby');
@@ -260,12 +305,39 @@ $(document).ready(function(){
         $('#detect_standby').css("background-color", "gray");
 	});
 
+	$('button#get_network_settings').click(function(event){
+	    printLog('Scanning...');
+		$(this).attr("disabled", true);
+		$(this).css("background-color", "gray");
+		$(this).text("Scanning");
+        $.ajax({url:'get_network_settings',type:'GET', dataType:'json'})
+		.done(function(data){
+		    if ('error' in data) {
+		        printLog([['Sorry! Something wrong! Try again!', 'red']]);
+		        return;
+		    }
+            var info = [];
+            info[0] = 'Network Settings:';
+            info[1] = '/n';
+            var i = 2;
+            for (d in data) {
+                info[i] = [d+': '+data[d], 'white', 'indent'];
+                i ++;
+            }
+            info[i] = '/n';
+            printLog(info);
+		});
+		$(this).attr("disabled", false);
+		$(this).css("background-color", "black");
+		$(this).text("Network Scan");
+	});
+
 	$('button#refresh').click(function(event){
 	    printLog('Refresh info list');
 		$(this).attr("disabled", true);
 		$(this).css("background-color", "gray");
 		$(this).text("Refreshing");
-		get_info({"text":sessionStorage.getItem("ip")});
+		get_info(sessionStorage.getItem("ip"));
 	});
 
 	$('button#exit_ase_ota').click(function(event){
@@ -551,13 +623,15 @@ $(document).on('dblclick', '.bt_devices', function() {
     if (bt_name.indexOf("connected") != -1){
         bt_name = bt_name.replace(" [connected]", "");
     }
-    var value = {"bt_mac": $(this).attr("id"),
-                 "ip": sessionStorage.getItem("ip")};
-    printLog("Removing bluetooth [" + bt_name + "]");
+    var value = {"bt_mac": $(this).attr("id")};
     $.ajax({url:'bt_remove', type:'POST', dataType:'json', data:value})
-    .done(function(){
-        printLog("Removed bluetooth [" + bt_name + "] successfully!");
-        get_info({"text":value["ip"]});
+    .done(function(data){
+        if (data['status'] == true){
+            printLog("Removed bluetooth [" + bt_name + "] successfully!");
+        }
+        if (refresh_info(data['status'], true) == true) {
+            printLog("Removing bluetooth [" + bt_name + "]");
+        }
     });
 });
 
@@ -592,6 +666,26 @@ function nav_selected(id) {
     $("#" + id).parent("ul").children("li").not("#" + id).removeClass("active");
 }
 */
+
+function prompt_error(){
+    var text = [];
+    text[0] = 'Seems disconnected with your product!';
+    text[1] = "Please check your connection and try again!";
+    printLog([[text[0], "red"]]);
+    popup_window_info(text);
+}
+
+function refresh_info(status, refresh){
+    var ip = sessionStorage.getItem('ip');
+    if (status != 200) {
+        prompt_error();
+        return false;
+    }
+    if (refresh == true){
+        get_info(ip);
+    }
+    return true;
+}
 
 function button_back(){
     $('div#device-scan').show();
@@ -640,7 +734,7 @@ function scan_devices(socket){
 function SelectDevice() {
     var selectText = $("#select-device").find("option:selected").text();
     if (selectText == ""){return;}
-  	get_info({"text": selectText});
+  	get_info(selectText);
 	$('div#device-scan').hide();
 	$('#info-show').show();
 	$("div#log").show();
@@ -649,12 +743,12 @@ function SelectDevice() {
     //});
 }
 
-function get_info(ip){
+function get_info(ip_text){
     $.ajax({
     	url: 'get_info',
        	type: 'GET',
        	dataType: 'json',
-       	data: ip,})
+       	data: {'ip': ip_text}})
     .done(function(data){
         //console.log(response);
         for (d in data){
@@ -664,27 +758,26 @@ function get_info(ip){
                 text[1] = "Maybe you need to check your device!";
                 printLog([[text[0], "red"]]);
                 popup_window_info(text);
-                return;
-            }
-            else if (d=="bt_reconnect"){
-                $("#bt_reconnect_mode").val(data[d]);
+                return false;
             }
             else if (d=="deviceName") {
                 $('#device_name_input').val(data[d]);
             }
-            else if (d=="bt_open") {
-                $('#bt_open').attr('checked', data[d]);
-                if (data[d]==true) {
+            else if (d=="bluetoothSettings"){
+                $('#bt_paired').empty();
+                //always open
+                var bt_open = data[d]['bt_open']
+                $('#bt_open_set').attr('checked', bt_open);
+                if (bt_open==true) {
                     $('.bt_pair').hide();
                 }
                 else {
                     $('.bt_pair').show();
                 }
-
-            }
-            else if (d=="bt_devices"){
-                $('#bt_paired').empty();
-                var devices = data[d]["rows"]
+                //bt reconnect mode
+                $("#bt_reconnect_mode").val(data[d]['bt_reconnect_mode']);
+                //bt paired devices
+                var devices = data[d]["bt_devices"]
                 if (devices.length==0) {
                     $li = $( "<li />");
                     $li.text("<None>");
@@ -694,13 +787,13 @@ function get_info(ip){
                 else{
                     for (var i in devices){
                         bt = devices[i];
-                        if (bt[2] != ''){
-                            bt_name = bt[0] + ' [' + bt[2] + ']';
+                        if (bt['connected'] == true){
+                            bt_name = bt['deviceName'] + ' [connected]';
                         }
                         else{
-                            bt_name = bt[0];
+                            bt_name = bt['deviceName'];
                         }
-                        bt_mac = bt[1];
+                        bt_mac = bt['deviceAddress'];
                         $li = $( "<li />");
                         $li.text(bt_name);
                         $li.addClass("bt_devices");
@@ -715,7 +808,8 @@ function get_info(ip){
                 $('td#'+d).text(data[d]);
             }
         }
-        sessionStorage.setItem("ip",data["ip"]);
+        sessionStorage.setItem("ip", data["ip"]);
+        sessionStorage.setItem("sn", data["sn"]);
         $('button#refresh').attr("disabled", false);
         $('button#refresh').css("background-color", "black");
         $('button#refresh').text("Refresh");
@@ -725,45 +819,63 @@ function get_info(ip){
         $('button#refresh').css("background-color", "black");
         $('button#refresh').text("Refresh");
     });
+    return true;
 }
 function change_device_name(name){
-    printLog("Change product name to " + name);
-    text = {"name":name, "ip":sessionStorage.getItem("ip")};
+    text = {"name":name};
     $.ajax({url:'change_product_name', type:'POST', dataType:'json', data:text})
-    .done(function(){
-        get_info({"text":text["ip"]});
+    .done(function(data){
+        if (refresh_info(data['status'], true) == true) {
+            printLog("Changed product name to " + name);
+        }
     });
 }
 /********************************
 	Log print
 ********************************/
 function printLog() {
+    /*
+       e.g. printLog('some text');
+            printLog([['/n'], [some text]);
+            printLog([['some text', 'red']]);
+            printLog([['some text', 'red', 'indent'], [...]]);
+    */
     var msg = arguments[0] ? arguments[0] : "Print Nothing!";
     //var color = arguments[1] ? arguments[1] : "white";
 	var time = getNowFormatDate();
-    var sn = $('#sn').text();
+    //var sn = $('#sn').text();
+	var sn = sessionStorage.getItem("sn");
 	var $li = $( "<li />" );
-	$( "<span />" ).text( time + " ["+ sn +"]").addClass( "lowlighted" ).appendTo( $li );
+	$( "<span />" ).text( time + " ["+ sn +"]").addClass( "time_print" ).appendTo( $li );
 	$( "<br />").appendTo( $li );
 	$( "<span />" ).text( "* " ).appendTo( $li );
+	var content;
 	if ($.isArray(msg)) {
         for (i in msg) {
             var $span = $( "<span />" );
-            if ($.isArray(msg[i]) == true && msg[i].length == 2) {
+            if ($.isArray(msg[i]) == true && msg[i].length >= 2) {
                 $span.css("color", msg[i][1]);
-                $span.text( msg[i][0] );
+                content = msg[i][0];
+                if (msg[i].length == 3) {
+                    $span.addClass("indent");
+                }
             }
             else {
-                $span.text( msg[i] );
+                content = msg[i];
             }
-            $span.appendTo( $li );
-            if (i < msg.length-1) {
+
+            if (content == '/n') {
+                $( "<br />" ).appendTo( $li );
+            }
+            else {
+                $span.text(content).appendTo( $li );
                 $( "<br />").appendTo( $li );
             }
         }
 	}
 	else {
-	    $( "<span />" ).text( msg ).appendTo( $li );
+	    content = msg;
+        $( "<span />" ).text(content).appendTo( $li );
 	}
     //$li.css("color", color);
 	var $log = $('#EventsLog');
