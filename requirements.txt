@@ -15,7 +15,7 @@ pefile==2017.11.5
 PyInstaller==3.3.1
 pypiwin32==223
 pyserial==3.4
-python-engineio==2.1.0
+python-engineio==2.1.1
 python-socketio==1.9.0
 pywin32==223
 qrcode==6.0

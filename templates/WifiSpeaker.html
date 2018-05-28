@@ -118,7 +118,7 @@
                         <td class="label">DHCP Mode: </td>
                         <td>
                             <select name="set_dhcp" id="set_dhcp">
-                                <option class="option" value="True">True</option>
+                                <option class="option" value="True" selected="selected">True</option>
                                 <option class="option" value="False">False</option>
                                 <option class="option" value="True&False">True&False</option>
                             </select>
@@ -236,6 +236,51 @@
         </a>
     </div>
 </div>
+
+<div class="window_popup_setting" id="window_popup_setting_auto_refresh">
+    <div style="float: left;">
+        <fieldset class="setting-fieldset">
+            <legend class="setting-legend">Auto Refresh</legend>
+            <table>
+                <tr>
+                    <td class="label">
+                        <label id="label_time_interval">Time Interval</label>
+                    </td>
+                    <td>
+                        <input type="text" id="time_interval" value=""> S
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label id="label_status">Status</label>
+                    </td>
+                    <td>
+                        <input type="checkbox" id="product_status_check" value="product_status_check">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label id="info_volume">Volume</label>
+                    </td>
+                    <td>
+                        <input type="checkbox" id="volume_check" value="volume_check">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="start_auto_refresh" class="button_wifi_speaker" style="float: left;">Start</button>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
 {% endblock %}
 
 {% block body %}
@@ -261,8 +306,12 @@
                         <td id="deviceName"><input type="text" id="device_name_input" title="Change product name" onchange="change_device_name(this.value)"></td>
                     </tr>
                     <tr>
-                        <td>ASE (FEP/SN)</td>
-                        <td id="device_versions"></td>
+                        <td>ASE (SN)</td>
+                        <td id="ase_version"></td>
+
+                    <tr>
+                        <td>FEP (Bootloader)</td>
+                        <td id="fep_versions"></td>
                     </tr>
                     <tr>
                         <td>IP Address</td>
@@ -294,24 +343,25 @@
                     </tr>
                     <tr>
                         <td>
-                            <button id="get_current_source" class="button_wifi_speaker_2">Source </button>
+                            <button id="get_product_status" class="button_wifi_speaker_2">Status </button>
                         </td>
-                        <td id="current_source"></td>
+                        <td id="product_status"></td>
                     </tr>
                     <tr>
+                        <td></td>
                         <td>
-                            <button id="get_standby" class="button_wifi_speaker_2">Status </button>
+                            <button id="unblock" class="button_wifi_speaker_2">Unblock</button>
+                            <button id="go_web_setting" class="button_wifi_speaker_2" style="margin-left:30px;">WebPage</button>
+                            <button id="factory_reset" class="button_wifi_speaker_2" style="color:red;margin-left:30px;">Factory Reset</button>
                         </td>
-                        <td id="standby_status"></td>
                     </tr>
                     <tr>
                         <td>
                             <button id="refresh" class="button_wifi_speaker_2" style="color:green;">Refresh</button>
                         </td>
                         <td>
-                            <button id="factory_reset" class="button_wifi_speaker_2" style="color:red;">Factory Reset</button>
-                            <button id="unblock" class="button_wifi_speaker_2" style="margin-left:30px;">Unblock</button>
-                            <button id="go_web_setting" class="button_wifi_speaker_2" style="margin-left:30px;">WebPage</button>
+                            <button id="get_volume" class="button_wifi_speaker_2">Volume&nbsp</button>
+                            <button id="get_other_info" class="button_wifi_speaker_2" style="margin-left:30px;">Other Info</button>
                         </td>
                     </tr>
                 </tbody>
@@ -324,6 +374,7 @@
         <br>
         <button id="ota-auto-update" class="button_wifi_speaker">Auto Update OTA</button>
         <button id="auto-setup-wifi" class="button_wifi_speaker">Auto Setup Wifi</button>
+        <button id="auto_refresh" class="button_wifi_speaker">Auto Refresh</button>
         <!--<br>
         <button id="back" class="button_wifi_speaker" onclick="button_back()">Back</button> -->
     </div>

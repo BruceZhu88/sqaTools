@@ -3,6 +3,7 @@
 
 import re
 import sys
+import json
 import urllib.request
 from time import sleep
 from src.common.Logger import Logger
@@ -61,17 +62,18 @@ class WifiSetup(object):
 
     def setup(self):
         try:
-            self.wifi_ini.cfg_load()
-            times = self.wifi_ini.cfg.getint("Run", "total_times")
-            time_reset = self.wifi_ini.cfg.getint("Run", "time_reset")
-            dhcp = self.wifi_ini.cfg.get("Wifi", "dhcp")
-            ssid = self.wifi_ini.cfg.get("Wifi", "ssid")
-            key = self.wifi_ini.cfg.get("Wifi", "password")
+            with open(self.wifi_ini) as json_file:
+                data = json.load(json_file)
+                # parent_path = os.path.realpath(os.path.join(os.getcwd(), ".."))
+            times = int(data.get("total_times"))
+            time_reset = int(data.get("time_reset"))
+            dhcp = data.get("dhcp")
+            ssid = data.get("ssid")
+            key = data.get("password")
             # encryption = wifi_setting.cfg.get("Wifi", "encryption")
-            ip = self.wifi_ini.cfg.get("Wifi", "static_ip")
-            gateway = self.wifi_ini.cfg.get("Wifi", "gateway")
-            netmask = self.wifi_ini.cfg.get("Wifi", "netmask")
-            self.wifi_ini.save()
+            ip = data.get("static_ip")
+            gateway = data.get("gateway")
+            netmask = data.get("netmask")
         except Exception as e:
             self.log.error(e)
             sys.exit()
@@ -149,7 +151,6 @@ class WifiSetup(object):
         self.print_log("Scanning devices")
         self.ase_info.get_ase_devices_list()
         while True:
-            devices_list = self.ase_info.return_devices()
-            status = devices_list.get("status")
+            status = self.ase_info.status
             if status == 1:
-                return devices_list.get("devices")
+                return self.ase_info.devices_list

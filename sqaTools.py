@@ -63,6 +63,7 @@ ase_info = AseInfo()
 INFO = {}
 UNBLOCK = {}
 PAGE_INFO = {"page": ""}
+STOP_REFRESH = False
 
 main_cfg_path = './config/main.conf'
 main_config = Config(main_cfg_path)
@@ -71,8 +72,7 @@ main_cfg = main_config.cfg
 
 ase_ota_setting_path = main_cfg.get('WifiSpeaker', 'ase_ota_setting')
 status_running = main_cfg.get('WifiSpeaker', 'status_running')
-wifi_setup_ini_path = main_cfg.get('WifiSpeaker', 'wifi_setup')
-wifi_setup_cfg = Config(wifi_setup_ini_path)
+wifi_setup_path = main_cfg.get('WifiSpeaker', 'wifi_setup')
 power_cycle_cfg = Config(main_cfg.get('PowerCycle', 'power_cycle'))
 cmd_get_log_file = main_cfg.get('WifiSpeaker', 'cmd_get_log_file')
 ase_log_path = main_cfg.get('Log', 'ase_log_path')
@@ -133,9 +133,8 @@ def scan_devices_thread():
     tmp_devices = ''
     while PAGE_INFO['page'] == 'wifi_speaker':
         socketio.sleep(0.003)  # avoid emmit block
-        devices_list = ase_info.return_devices()
-        status = devices_list.get("status")
-        devices_info = devices_list.get("devices")
+        status = ase_info.status
+        devices_info = ase_info.devices_list
         if len(devices_info) > 0:
             # for i in devices_info.keys():  # dict.keys() return a list, so won't crash
             for d in devices_info:
@@ -152,8 +151,8 @@ def scan_devices_thread():
 
 @socketio.on('scan_devices', namespace='/wifi_speaker/test')
 def scan_devices():
-    socketio.start_background_task(target=ase_info.get_ase_devices_list)
     socketio.start_background_task(target=scan_devices_thread)
+    socketio.start_background_task(target=ase_info.get_ase_devices_list)
 
 
 '''
@@ -165,7 +164,8 @@ def test_connect():
 
 @app.route('/get_info', methods=['GET'])
 def get_info():
-    global INFO
+    global INFO, STOP_REFRESH
+    STOP_REFRESH = True
     # text = request.form.to_dict().get("text")  ---> if methods=post
     text = request.args.get("ip")  # ---> if methods=get
     # p = re.compile(r'(?:(?:[0,1]?\d?\d|2[0-4]\d|25[0-5])\.){3}(?:[0,1]?\d?\d|2[0-4]\d|25[0-5])')
@@ -174,9 +174,25 @@ def get_info():
     except:
         ip = text
     INFO = ase_info.thread_get_info(ip)
-    if not INFO:
-        return jsonify({"error": "error", "ip": ip})
     return jsonify(INFO)
+
+
+@socketio.on('save_ip', namespace='/wifi_speaker/test')
+def save_ip(msg):
+    ip = msg.get('ip')
+    ips = ase_info.load_ip()
+    if ip not in ips:
+        ips.append(ip)
+    ase_info.store_ip(ips)
+
+
+@app.route('/check_wifi', methods=['GET'])
+def check_wifi():
+    ip = request.args.get("ip")
+    status = {'status': 'ok'}
+    if not check_url_status("http://{}:8080/BeoDevice".format(ip), timeout=5):
+        status = {'status': 'error'}
+    return jsonify(status)
 
 
 @app.route('/get_network_settings', methods=['GET'])
@@ -202,6 +218,42 @@ def bt_pair():
     return jsonify({'status': status})
 
 
+def thread_auto_refresh(t, items):
+    global STOP_REFRESH
+    while PAGE_INFO['page'] == 'wifi_speaker':
+        infos = {}
+        socketio.sleep(int(t))
+        if not check_url_status("http://{}:8080/BeoDevice".format(INFO['ip']), timeout=5):
+            STOP_REFRESH = True
+            socketio.emit('print_msg', {'data': 'Seems disconnected with your product!', 'color': 'red'},
+                          namespace="/wifi_speaker/test")
+            return
+        if not STOP_REFRESH:
+            for key, value in items.items():
+                if value:
+                    info = ase_info.get_info(key, INFO['ip'])
+                    infos[key] = info
+            socketio.emit('start_auto_refresh', infos, namespace="/wifi_speaker/test")
+        else:
+            return
+
+
+@socketio.on('auto_refresh', namespace='/wifi_speaker/test')
+def auto_refresh(msg):
+    global STOP_REFRESH
+    STOP_REFRESH = False
+    with thread_lock:
+        if thread is None:
+            socketio.start_background_task(target=thread_auto_refresh(msg.get('time_interval'), msg.get('items')))
+
+
+@app.route('/stop_auto_refresh', methods=['POST'])
+def stop_auto_refresh():
+    global STOP_REFRESH
+    STOP_REFRESH = True
+    return jsonify({})
+
+
 def thread_check_standby(ip):
     num = 0
     start_time = time.time()
@@ -210,16 +262,16 @@ def thread_check_standby(ip):
             socketio.emit("check_standby", {"status": "timeout"}, namespace="/wifi_speaker/test")
             return
         status = ase_info.get_info('get_standby', ip)
-        if status == 'NA':
+        if status == 'NA' or status == 'error':
             socketio.emit("check_standby", {"status": "error"}, namespace="/wifi_speaker/test")
             return
         if status == 'Standby':
             tmp_time = time.time() - start_time
-            m = int(tmp_time / 60)
-            s = int(tmp_time % 60)
-            decade_m = '0' if int(m / 10) == 0 else ''
-            decade_s = '0' if int(s / 10) == 0 else ''
-            elapsed_time = '{}{}m{}{}s'.format(decade_m, m, decade_s, s)
+            m = str(int(tmp_time / 60))
+            s = str(int(tmp_time % 60))
+            m = '0' + m if len(m) == 1 else m
+            s = '0' + s if len(s) == 1 else s
+            elapsed_time = '{}m{}s'.format(m, s)
             socketio.emit("check_standby", {"status": "Standby", "elapsed_time": elapsed_time},
                           namespace="/wifi_speaker/test")
             return
@@ -232,16 +284,24 @@ def detect_standby():
     socketio.start_background_task(target=thread_check_standby(INFO['ip']))
 
 
-@app.route('/get_current_source', methods=['GET'])
-def get_current_source():
-    source = ase_info.get_info('current_source', INFO['ip'])
-    return jsonify({'source': source})
+@app.route('/get_product_status', methods=['GET'])
+def get_product_status():
+    status = ase_info.get_info('get_product_status', INFO['ip'])
+    return jsonify(status)
 
 
-@app.route('/get_standby', methods=['GET'])
-def get_standby():
-    status = ase_info.get_info('get_standby', INFO['ip'])
-    return jsonify({'status': status})
+@app.route('/get_volume', methods=['GET'])
+def get_volume():
+    volume = ase_info.get_info('volume', INFO['ip'])
+    if volume == 'NA' or volume == 'error':
+        return jsonify({"error": "error"})
+    return jsonify(volume)
+
+
+@app.route('/get_other_info', methods=['GET'])
+def get_other_info():
+    info = ase_info.get_other_info(INFO['ip'])
+    return jsonify(info)
 
 
 # return render_template('WifiSpeaker.html', info=info)
@@ -376,7 +436,6 @@ def ota_auto_update():
 
 
 def ase_ota_thread():
-    print(4)
     while PAGE_INFO['page'] == 'wifi_speaker':
         socketio.sleep(1)
         if not thread_ase_ota.is_alive():
@@ -396,12 +455,20 @@ def ota_auto_update(msg):
 
 @app.route('/wifi_setup_setting', methods=['GET'])
 def wifi_setup_setting():
+    """
+    :return:
+    """
+    '''
     settings = {}
     wifi_setup_cfg.cfg_load()
     for info1 in wifi_setup_cfg.cfg_dump():
         for info2 in info1:
             settings[info2[0]] = info2[1]
     wifi_setup_cfg.save()
+    '''
+    settings = load(wifi_setup_path)
+    if len(settings) == 0:
+        settings['dhcp'] = 'True'
     return jsonify(settings)
 
 
@@ -416,10 +483,13 @@ def auto_setup_wifi_thread():
 @socketio.on('auto_setup_wifi', namespace='/wifi_speaker/test')
 def auto_setup_wifi(msg):
     global thread_setup_wifi
+    '''
     wifi_setup_cfg.cfg_load()
     wifi_setup_cfg.set_items(msg)
     wifi_setup_cfg.save()
-    wifi_setup = WifiSetup(INFO["ip"], INFO["deviceName"], wifi_setup_cfg,socketio)
+    '''
+    store(wifi_setup_path, msg)
+    wifi_setup = WifiSetup(INFO["ip"], INFO["deviceName"], wifi_setup_path, socketio)
     thread_setup_wifi = socketio.start_background_task(target=wifi_setup.setup)
     socketio.start_background_task(target=auto_setup_wifi_thread)
 

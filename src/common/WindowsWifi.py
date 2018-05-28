@@ -152,8 +152,8 @@ class WindowsWifi(object):
             netmask_bit = netmask_bit + bin(int(n)).count('1')
         """
         ip = socket.gethostbyname(socket.gethostname())
-        tmp = ip.split(".")
-        gateway = "{}.{}.{}.1".format(tmp[0], tmp[1], tmp[2])
+        tmp = ip.rsplit(".", 1)[0]
+        gateway = "{}.1".format(tmp)
         # netmask_bit = 24
         # path = "{}\config\\NBTscan-Ipanto.exe".format(os.getcwd())
         # cmd = r"{} {}/{}".format(path, gateway, netmask_bit)
@@ -179,7 +179,7 @@ class WindowsWifi(object):
                 if len(ip_filter) != 0:
                     if gateway != ip_filter[0] and ip != ip_filter[0]:
                         ip_address.append(ip_filter[0])
-        return ip_address
+        return {'ip': ip_address, 'gateway': gateway}
 
 
 if __name__ == "__main__":

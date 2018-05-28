@@ -39,13 +39,53 @@ clearLogs_para = {
     "value": {"type": "bool_", "bool_": True}
 }
 
+# location: HK
+# region: None
+# timezone: Asia/Hong_Kong
+location_para = {
+    "path": "settings:/location",
+    "roles": "value",
+    "value": {"type": "string_", "string_": "HK"}
+}
+
+timezone_para = {
+    "path": "settings:/timezone",
+    "roles": "value",
+    "value": {"type": "string_", "string_": "Asia/Hong_Kong"}
+}
+
+# location: CN
+# region: Shanghai
+# timezone: Asia/Shanghai
+'''
+path: settings:/region
+roles: value
+value: {"type":"string_","string_":"Asia/Shanghai"}
+'''
+
+# setData
+# "Tue May 22 10:14:32 2018"
+time_manager_para = {
+    "path": "time_manager:/get/actual/local/time/request",
+    "roles": "activate",
+    "value": {"type": "bool_", "bool_": True}
+}
+
+
 beo_device = "http://{}:8080/BeoDevice/"
+modules_info = "http://{}:8080/BeoDevice/modulesInformation"
 current_source = "http://{}:8080/BeoZone/Zone/ActiveSourceType"
 # {"sourceType":{"type":"BLUETOOTH"},"friendlyName":"Bluetooth"}
 network_settings = "http://{}:8080/BeoDevice/networkSettings"
 bluetooth_settings = "http://{}:8080/BeoDevice/bluetoothSettings"
 standby_status = "http://{}:8080/BeoDevice/powerManagement/standby"
 # "standby":{"powerState":"standby"
+
+volume_speaker = "http://{}:8080/BeoZone/Zone/Sound/Volume/Speaker"
+zone_stream = "http://{}:8080/BeoZone/Zone/Stream/{}"
+power_management = "http://{}:8080/BeoDevice/powerManagement"
+
+regional_settings = "http://{}:8080/BeoDevice/regionalSettings"
 
 white_space = '_0_white_space_0_'
 

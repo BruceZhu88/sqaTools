@@ -12,6 +12,13 @@ input#input-ip {
 	color: black;
 	border-radius: 10px;
 }
+input#time_interval {
+    width: 50px;
+	height: 30px;
+	font-size: 15px;
+	color: black;
+	border-radius: 10px;
+}
 #deviceName input {
     width: 250px;
     height: 30px;
@@ -51,14 +58,14 @@ div#info-show{
 }
 div#div-info-display{
     border:1px dashed #504848;
-    width: 550px;
+    width: 650px;
 }
 div#div-left{
 	float: left;
 }
 div#div-right{
 	float: left;
-	padding-left: 25px;
+	padding-left: 0px;
 }
 div#ota_status, div#wifi_setup_status{
 	float: left;
@@ -133,6 +140,7 @@ table#info-display{
 #window_popup_setting_ota, #window_popup_setting_wifisetup{
     display: none;
 }
+
 .dhcp_false{
     display: none;
 }

@@ -165,12 +165,31 @@ $(document).ready(function(){
 	$('button#go-ip').click(function(event){
 		var ip = $("input[name='input-ip']").val();
 		if (isValidIP(ip)) {
-		    get_info(ip);
-			$('div#device-scan').hide();
-			$('#info-show').show();
-			$("div#log").show();
-			$("p#ip-error").hide();
-			var text = {"text":ip};
+		    $(this).text('Checking...');
+		    $(this).attr("disabled", true);
+            $(this).css("background-color", "gray");
+            $.ajax({url: 'check_wifi', type: 'GET', dataType: 'json', data: {'ip': ip}})
+            .done(function(data){
+                if (data['status'] == 'ok') {
+                    $('div#device-scan').hide();
+                    $('#info-show').show();
+                    $("div#log").show();
+                    $("p#ip-error").hide();
+                    get_info(ip);
+                    socket.emit('save_ip', {'ip': ip});
+                }
+                else{
+                    var text=[];
+                    text[0] = 'Sorry, cannot connect to '+ip+'  !';
+                    text[1] = "Please check device ip and try again!";
+                    popup_window_info(text);
+                }
+            })
+            .always(function(){
+                $('#go-ip').text('Go');
+                $('#go-ip').attr("disabled", false);
+                $('#go-ip').css("background-color", "black");
+            });
 		}
 		else{
 			$("p#ip-error").show();
@@ -256,35 +275,92 @@ $(document).ready(function(){
         });
 	});
 
-    $('button#get_current_source').click(function(event){
-        $.ajax({url:'get_current_source',type:'GET', dataType:'json'})
+    $('button#get_product_status').click(function(event){
+        printLog("Refresh product status");
+        $(this).attr("disabled", true);
+        $(this).css("background-color", "grey");
+        $.ajax({url:'get_product_status',type:'GET', dataType:'json'})
 		.done(function(data){
-		    if (data['source'] != 'error') {
-		        printLog("Refresh current source");
-                $('td#current_source').text(data['source'])
+		    $('td#product_status').empty();
+		    for (name in data) {
+		        if (data[name] != 'error') {
+		            $li = $( "<li />");
+                    $li.text(name+": "+ data[name]);
+                    $li.appendTo($('td#product_status'));
+		        }
+                else {
+                    prompt_error();
+                    return
+                }
 		    }
-		    else {
-                prompt_error();
-		    }
+		})
+		.always(function(){
+            $('#get_product_status').attr("disabled", false);
+            $('#get_product_status').css("background-color", "black");
 		});
 	});
 
-    $('button#get_standby').click(function(event){
-        $.ajax({url:'get_standby',type:'GET', dataType:'json'})
+    $('button#get_volume').click(function(event){
+        $(this).attr("disabled", true);
+        $(this).css("background-color", "grey");
+        $.ajax({url:'get_volume',type:'GET', dataType:'json'})
 		.done(function(data){
-		    if (data['status'] != 'error') {
-		        printLog("Check current power status");
-                $('td#standby_status').text(data['status'])
-		    }
-		    else {
+            if ('error' in data) {
+                    prompt_error();
+                    return;
+            }
+            var info = [];
+            info[0] = 'Sound volume:';
+            info[1] = '/n';
+            var i = 2;
+            for (d in data) {
+                info[i] = [d+': '+data[d], 'white', 'indent'];
+                i ++;
+            }
+            info[i] = '/n';
+            printLog(info);
+		})
+		.always(function(){
+            $('#get_volume').attr("disabled", false);
+            $('#get_volume').css("background-color", "black");
+		});
+	});
+
+    $('button#get_other_info').click(function(event){
+        $(this).attr("disabled", true);
+        $(this).css("background-color", "grey");
+        $.ajax({url:'get_other_info',type:'GET', dataType:'json'})
+		.done(function(data){
+            if ('error' in data) {
                 prompt_error();
-		    }
+                return;
+            }
+            var info = [];
+            info[0] = 'Other info:';
+            info[1] = '/n';
+            var i = 2;
+            for (d in data) {
+                info[i] = ['*'+d+'*', 'white', 'indent'];
+                for (d1 in data[d]) {
+                    i ++;
+                    info[i] = [d1+': '+data[d][d1], 'white', 'indent'];
+                }
+                i ++;
+                info[i] = '/n';
+                i ++;
+            }
+            printLog(info);
+		})
+		.always(function(){
+            $('#get_other_info').attr("disabled", false);
+            $('#get_other_info').css("background-color", "black");
 		});
 	});
 
     socket.on('check_standby', function(msg) {
         if (msg['status'] == 'Standby') {
             printLog("Your product enter Standby! Elapsed Time: "+msg['elapsed_time']);
+            get_info(sessionStorage.getItem('ip'));
         }
         else if (msg['status'] == 'error'){
             printLog([['Seems disconnected with your product!', 'red']])
@@ -299,10 +375,10 @@ $(document).ready(function(){
 
     $('button#detect_standby').click(function(event){
         printLog('Start detect Standby');
-        socket.emit('detect_standby');
         $('#detect_standby').attr("disabled", true);
         $('#detect_standby').text("Detecting");
         $('#detect_standby').css("background-color", "gray");
+        socket.emit('detect_standby');
 	});
 
 	$('button#get_network_settings').click(function(event){
@@ -326,10 +402,12 @@ $(document).ready(function(){
             }
             info[i] = '/n';
             printLog(info);
+		})
+		.always(function(){
+            $('#get_network_settings').attr("disabled", false);
+            $('#get_network_settings').css("background-color", "black");
+            $('#get_network_settings').text("Network Scan");
 		});
-		$(this).attr("disabled", false);
-		$(this).css("background-color", "black");
-		$(this).text("Network Scan");
 	});
 
 	$('button#refresh').click(function(event){
@@ -339,6 +417,83 @@ $(document).ready(function(){
 		$(this).text("Refreshing");
 		get_info(sessionStorage.getItem("ip"));
 	});
+
+	$('button#auto_refresh').click(function(event){
+	    if ( $(this).text() == 'Stop' ){
+	        $.ajax({url: 'stop_auto_refresh', type: 'POST', dataType: 'json'})
+	        .done(function(){
+                $("button#auto_refresh").text('Auto Refresh');
+	            $("button#auto_refresh").css("background-color", "black");
+	        });
+	    }
+	    else {
+	        popup_window_setting("auto_refresh");
+	    }
+	});
+
+	$('button#start_auto_refresh').click(function(event){
+	    var checked = [];
+	    var time_interval = $('#time_interval').val();
+	    checked[0] = $('#product_status_check').prop('checked');
+	    checked[1] = $('#volume_check').prop('checked');
+	    var reg = /^\d+$/; // time_interval must be integer
+	    if (reg.test(time_interval) == false) {
+            $('#time_interval').focus();
+            $('#time_interval').val('');
+            return;
+	    }
+	    for (i in checked) {
+	        if (checked[i] == true) {
+	        	$('#auto_refresh').text('Stop');
+                cancel_popup_setting();
+                printLog("Start auto refresh");
+                $("button#auto_refresh").css("background-color", "red");
+                socket.emit('auto_refresh', {'time_interval': time_interval,
+                                             'items': {'get_product_status': checked[0],
+                                                       'volume': checked[1]}
+                                             });
+                break;
+	        }
+	    }
+
+	});
+
+    socket.on('start_auto_refresh', function(data) {
+        $('#EventsLog').empty();
+        var info = [];
+        var i = 2;
+        info[0] = 'Info: ';
+        info[1] = '/n';
+        if ('volume' in data) {
+            if ('error' in data['volume']) {
+                prompt_error();
+                return;
+            }
+            info[i] = ['Current volume: '+data['volume']['Current Level'], 'white', 'indent'];
+            i += 1;
+        }
+        if ('get_product_status' in data) {
+            if ('error' in data['get_product_status']) {
+                prompt_error();
+                return;
+            }
+            for (d in data['get_product_status']) {
+                info[i] = [d+': '+data['get_product_status'][d], 'white', 'indent'];
+                i ++;
+            }
+        }
+        info[i] = '/n';
+        printLog(info);
+
+        /*
+        if ($('#product_status_check').prop('checked') == true) {
+            $('#get_product_status').click();
+        }
+        if ($('#volume_check').prop('checked') == true) {
+            $('#get_volume').click();
+        }*/
+
+    });
 
 	$('button#exit_ase_ota').click(function(event){
 		$.ajax({url:'exit_ase_ota',type:'POST',dataType:'json'})
@@ -624,13 +779,11 @@ $(document).on('dblclick', '.bt_devices', function() {
         bt_name = bt_name.replace(" [connected]", "");
     }
     var value = {"bt_mac": $(this).attr("id")};
+    printLog("Removing BT device [" + bt_name + "]");
     $.ajax({url:'bt_remove', type:'POST', dataType:'json', data:value})
     .done(function(data){
-        if (data['status'] == true){
-            printLog("Removed bluetooth [" + bt_name + "] successfully!");
-        }
         if (refresh_info(data['status'], true) == true) {
-            printLog("Removing bluetooth [" + bt_name + "]");
+            printLog("Removed BT device [" + bt_name + "] successfully!");
         }
     });
 });
@@ -744,6 +897,7 @@ function SelectDevice() {
 }
 
 function get_info(ip_text){
+    var status = false;
     $.ajax({
     	url: 'get_info',
        	type: 'GET',
@@ -762,6 +916,14 @@ function get_info(ip_text){
             }
             else if (d=="deviceName") {
                 $('#device_name_input').val(data[d]);
+            }
+            else if (d=="product_status") {
+                $('td#product_status').empty();
+                for (name in data["product_status"]) {
+		            $li = $( "<li />");
+                    $li.text(name+": "+ data["product_status"][name]);
+                    $li.appendTo($('td#product_status'));
+		        }
             }
             else if (d=="bluetoothSettings"){
                 $('#bt_paired').empty();
@@ -808,6 +970,7 @@ function get_info(ip_text){
                 $('td#'+d).text(data[d]);
             }
         }
+        status = true;
         sessionStorage.setItem("ip", data["ip"]);
         sessionStorage.setItem("sn", data["sn"]);
         $('button#refresh').attr("disabled", false);
@@ -819,7 +982,7 @@ function get_info(ip_text){
         $('button#refresh').css("background-color", "black");
         $('button#refresh').text("Refresh");
     });
-    return true;
+    return status;
 }
 function change_device_name(name){
     text = {"name":name};
@@ -877,6 +1040,7 @@ function printLog() {
 	    content = msg;
         $( "<span />" ).text(content).appendTo( $li );
 	}
+	//$('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
     //$li.css("color", color);
 	var $log = $('#EventsLog');
 	//$log.prepend($li)
@@ -888,7 +1052,7 @@ function printLog() {
 	Verify IP
 ********************************/
 function isValidIP(ip) {
-	var reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
+	var reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 	return reg.test(ip);
 }
 

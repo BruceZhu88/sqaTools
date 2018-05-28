@@ -392,7 +392,7 @@ class AseUpdate(object):
         # start = time.time()
 
         for i in range(1, self.cycle + 1):
-            self.print_log("This is %i times----------------------------------------" % i)
+            self.print_log("This is {} times----------------------------------------".format(i))
             for j in range(0, 2):
                 if self.check_network(self.IP + "/index.fcgi"):
                     # when version file have been download from server(on updating),but the net disconnect
