@@ -281,6 +281,8 @@
         </a>
     </div>
 </div>
+
+
 {% endblock %}
 
 {% block body %}
@@ -378,6 +380,8 @@
         <!--<br>
         <button id="back" class="button_wifi_speaker" onclick="button_back()">Back</button> -->
     </div>
+
+
 </div>
 
 <div id="ota_status">
@@ -456,19 +460,9 @@
     <a class="a_btn" href="{{url_for('exit_run')}}">Exit</a>
 </div>
 
-<div id="div-right">
-	<div id="log">
-		<div class="title_events_logs">
-			<span>Events Print:</span>
-		</div>
-		<div id="log-print">
-			<ul id="EventsLog" class="Logs-list"></ul>
-		</div>
-        <div>
-            <button id="clear_print" class="button_wifi_speaker">Clear</button>
-        </div>
-	</div>
-</div>
+
+
+
 <link rel="stylesheet" href="{{url_for('static', filename='css/WifiSpeaker.css')}}">
 <script src="{{url_for('static', filename='js/wifi_speaker.js')}}"></script>
 {% endblock %}

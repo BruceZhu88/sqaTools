@@ -3,6 +3,7 @@ $().ready(function() {
     $("#commentForm").validate();
 });
 
+
 $(document).ready(function(){
     var ticker;
     /*
@@ -173,7 +174,7 @@ $(document).ready(function(){
                 if (data['status'] == 'ok') {
                     $('div#device-scan').hide();
                     $('#info-show').show();
-                    $("div#log").show();
+                    $("div#div-log").show();
                     $("p#ip-error").hide();
                     get_info(ip);
                     socket.emit('save_ip', {'ip': ip});
@@ -194,10 +195,6 @@ $(document).ready(function(){
 		else{
 			$("p#ip-error").show();
 		}
-	});
-
-	$('button#clear_print').click(function(event){
-	    $('#EventsLog').empty();
 	});
 
 	$('button#back').click(function(event){
@@ -771,6 +768,7 @@ $(document).ready(function(){
             }
         });
 
+
 });
 
 $(document).on('dblclick', '.bt_devices', function() {
@@ -844,7 +842,7 @@ function button_back(){
     $('div#device-scan').show();
     $('#info-show').hide();
     $('#select-device').empty();
-    $('div#log').hide();
+    $('div#div-log').hide();
 }
 
 function scan_devices(socket){
@@ -890,7 +888,7 @@ function SelectDevice() {
   	get_info(selectText);
 	$('div#device-scan').hide();
 	$('#info-show').show();
-	$("div#log").show();
+	$("div#div-log").show();
     //$.post("/get_info", data, function(){
     //	alert("success")
     //});
@@ -993,61 +991,7 @@ function change_device_name(name){
         }
     });
 }
-/********************************
-	Log print
-********************************/
-function printLog() {
-    /*
-       e.g. printLog('some text');
-            printLog([['/n'], [some text]);
-            printLog([['some text', 'red']]);
-            printLog([['some text', 'red', 'indent'], [...]]);
-    */
-    var msg = arguments[0] ? arguments[0] : "Print Nothing!";
-    //var color = arguments[1] ? arguments[1] : "white";
-	var time = getNowFormatDate();
-    //var sn = $('#sn').text();
-	var sn = sessionStorage.getItem("sn");
-	var $li = $( "<li />" );
-	$( "<span />" ).text( time + " ["+ sn +"]").addClass( "time_print" ).appendTo( $li );
-	$( "<br />").appendTo( $li );
-	$( "<span />" ).text( "* " ).appendTo( $li );
-	var content;
-	if ($.isArray(msg)) {
-        for (i in msg) {
-            var $span = $( "<span />" );
-            if ($.isArray(msg[i]) == true && msg[i].length >= 2) {
-                $span.css("color", msg[i][1]);
-                content = msg[i][0];
-                if (msg[i].length == 3) {
-                    $span.addClass("indent");
-                }
-            }
-            else {
-                content = msg[i];
-            }
 
-            if (content == '/n') {
-                $( "<br />" ).appendTo( $li );
-            }
-            else {
-                $span.text(content).appendTo( $li );
-                $( "<br />").appendTo( $li );
-            }
-        }
-	}
-	else {
-	    content = msg;
-        $( "<span />" ).text(content).appendTo( $li );
-	}
-	//$('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
-    //$li.css("color", color);
-	var $log = $('#EventsLog');
-	//$log.prepend($li)
-	$log.append($li);
-	//$("#EventsLog").height();
-	$("#EventsLog").scrollTop($("#EventsLog").get(0).scrollHeight);
-}
 /********************************
 	Verify IP
 ********************************/
@@ -1055,6 +999,16 @@ function isValidIP(ip) {
 	var reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 	return reg.test(ip);
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

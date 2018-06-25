@@ -7,7 +7,7 @@ $(document).ready(function(){
     socket.emit("scan_port");
 
     socket.on('print_log', function(msg) {
-        printLog(msg.msg, msg.color);
+        printLog2(msg.msg, msg.color);
     });
 
     socket.on('add_port', function(msg) {
@@ -17,6 +17,7 @@ $(document).ready(function(){
         $option.attr("title", msg.data);
         $option.text(msg.data).appendTo($select);
     });
+
     socket.on('del_port', function(msg) {
         $("#select-port option").each(function(i){
             if ($(this).text() == msg.data){
@@ -211,24 +212,5 @@ function RangeValidate(value) {
         return true;
     }
     return false;
-}
-/********************************
-	Log print
-********************************/
-function printLog() {
-    var msg = arguments[0] ? arguments[0] : "Print Nothing!";
-    var color = arguments[1] ? arguments[1] : "white";
-	var time = getNowFormatDate();
-
-	var $li = $( "<li />" );
-	$( "<span />" ).text( time ).addClass( "lowlighted" ).appendTo( $li );
-	$( "<span />" ).text( " " ).appendTo( $li );
-	$( "<span />" ).text( msg ).appendTo( $li );
-
-    $li.css("color", color);
-	var $log = $('#power_cycle-print');
-	//$log.prepend($li)
-	$log.append($li);
-	$("#power_cycle-print").scrollTop($("#power_cycle-print").get(0).scrollHeight);
 }
 

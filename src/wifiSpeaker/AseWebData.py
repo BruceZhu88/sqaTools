@@ -73,6 +73,7 @@ time_manager_para = {
 
 
 beo_device = "http://{}:8080/BeoDevice/"
+sys_products = "http://{}:8080/BeoZone/System/Products"
 modules_info = "http://{}:8080/BeoDevice/modulesInformation"
 current_source = "http://{}:8080/BeoZone/Zone/ActiveSourceType"
 # {"sourceType":{"type":"BLUETOOTH"},"friendlyName":"Bluetooth"}

@@ -2,6 +2,7 @@
 import sys
 import json
 import random
+import os
 from time import sleep
 from serial.tools import list_ports
 from src.common.Logger import Logger
@@ -9,7 +10,7 @@ from src.common.SerialHelper import SerialHelper
 
 
 class SerialTool(object):
-    def __init__(self, socketio=None):
+    def __init__(self, state_path, socketio=None):
         self.socketio = socketio
         self.log = Logger("power_cycle").logger()
         self.ini = None
@@ -17,6 +18,7 @@ class SerialTool(object):
         self.ser = None
         self.port_selected = None
         self.port_disconnect = False
+        self.state_path = os.path.abspath(state_path)
 
     def print_log(self, msg, color='white'):
         try:
@@ -122,7 +124,7 @@ class SerialTool(object):
         self.ser.write(msg.encode('utf-8'), isHex=is_hex)
 
     def power(self, status):
-        with open("./data/status.json") as f:
+        with open(self.state_path) as f:
             status_running = json.load(f)
         if status_running["power_cycle_status"] == 0:
             self.print_log("You stopped running!!!", "red")

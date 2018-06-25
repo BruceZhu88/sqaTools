@@ -9,7 +9,8 @@
 	<link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
 
 	<script src="{{url_for('static', filename='jsapi/jquery-2.1.1.min.js')}}"></script>
-	<script src="{{url_for('static', filename='jsapi/socket.io-2.1.1.js')}}"></script>
+	<!--<script src="{{url_for('static', filename='jsapi/socket.io-2.1.1.js')}}"></script>-->
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
 	<script src="{{url_for('static', filename='bootstrap-3.3.7-dist/js/bootstrap.min.js')}}"></script>
 	<script src="{{url_for('static', filename='jsapi/jquery-validation-1.14.0/lib/jquery.js')}}"></script>
 	<script src="{{url_for('static', filename='jsapi/jquery-validation-1.14.0/lib/jquery.mockjax.js')}}"></script>
@@ -79,6 +80,17 @@
 
 	<div id="content">
 		{% block body %} {% endblock %}
+		<div id="div-log">
+			<div class="title_events_logs">
+				<span>Events Print:</span>
+			</div>
+			<div id="log-print">
+				<ul id="EventsLog" class="Logs-list"></ul>
+			</div>
+			<div>
+				<button id="clear_print" class="btn_common">Clear</button>
+			</div>
+		</div>
 	</div>
 
 	<!--<footer>Copyright @ TymSQA</footer>-->

@@ -1,9 +1,11 @@
 import os
+import shutil
 import json
 import threading
 import webbrowser
 import zipfile
 from src.common.Logger import Logger
+
 logger = Logger("main").logger()
 
 
@@ -47,6 +49,19 @@ def delete_file(src):
             # print('delete file %s failed'%src)
     else:
         logger.debug("Delete file {0} does not exist!!".format(src))
+
+
+def empty_folder(dir_path, except_file=None):
+    if not os.path.exists(dir_path):
+        return False
+    for file_name in os.listdir(dir_path):
+        file_path = os.path.join(dir_path, file_name)
+        if file_name == except_file:
+            continue
+        try:
+            shutil.rmtree(file_path)
+        except OSError:
+            os.remove(file_path)
 
 
 def zip_dir(dir_name, zip_file_name):

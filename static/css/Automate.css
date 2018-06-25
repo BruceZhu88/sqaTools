@@ -1,4 +1,4 @@
-.btn_automate{
+.btn_automate, .btn_save, #btn_save_steps_ok, #btn_delete_file, .move{
 	padding: 8px 10px;
 	border: gray solid thin;
 	outline: none;
@@ -7,4 +7,131 @@
 	font-size: 15px;
 	color: white;
 	background-color: black;
+}
+
+/********************************
+	Automation
+********************************/
+.action_select{
+    border: gray solid thin;
+    height: 550px;
+    margin: 10px;
+    width: 430px;
+    float: left;
+}
+div#edit_action, div#adit_steps{
+    border: gray solid thin;
+    float: left;
+    width: 430px;
+    margin-bottom: 5px;
+}
+.category{
+    margin-left: 20px;
+}
+#set_action{
+    float:left;
+    overflow-y: scroll;
+    width: 428px;
+    height: 515px;
+}
+.edit_button{
+    float: left;
+    margin-right: 10px;
+}
+.span_edit_action{
+    font-size: 15px;
+    float: left;
+}
+.action{
+    width: 400px;
+    float: left;
+	margin: 3px;
+}
+.input_edit_action, #input_save_name{
+    font-size: 15px;
+    color: black;
+    text-align: center;
+    width: 70px;
+    height: 18px;
+}
+
+#input_save_name{
+    width: 150px;
+}
+
+select#select_saved_steps{
+    margin-left: 0px;
+    border-width: 1px;
+    border-color: white;
+    border-style: solid;
+    width: 300px;
+    height: 200px;
+    background-color: black;
+}
+
+.btn_edit_action{
+    border-radius: 0px;
+    background-color: black;
+}
+.btn_add_action{
+    background-color: black;
+    color: white;
+}
+.remove_item{
+    cursor: pointer;
+    float: right;
+}
+.action_steps{
+    border: gray solid thin;
+    margin: 10px;
+    float: left;
+}
+div#edit_steps{
+
+}
+select#show_steps{
+    border: gray solid thin;
+    height: 420px;
+    width: 450px;
+    float: left;
+	padding: 2px 4px;
+	border-width: 1px;
+    background-color: black;
+}
+
+div#steps_operation{
+    width: 450px;
+}
+
+.automation_setting{
+    margin: 50px;
+    padding: 30px;
+    background: #eeeeee;
+}
+
+.step_number{
+    float: left;
+    margin-right: 5px;
+}
+.sequence{
+	width: 10px;
+	float: left;
+}
+
+.action_text{
+    background: gray;
+    height: 20px;
+    width: 300px;
+    color: #eeeeee;
+	float: left;
+}
+
+.move_up, .move_down{
+    float: left;
+    cursor: pointer;
+}
+
+div#automation_running_state{
+    display: none;
+    float: left;
 }

@@ -12,7 +12,7 @@ import os
 import shutil
 
 
-def walkFolders(folder):
+def walk_folders(folder):
     folderscount = 0
     filescount = 0
     size = 0
@@ -25,9 +25,9 @@ def walkFolders(folder):
     return folderscount, filescount, size
 
 
-def RemoveFile(path, fileType):
+def remove_file(path, fileType):
     if os.path.exists(path):
-        folderscount, filescount, size = walkFolders(path)
+        folderscount, filescount, size = walk_folders(path)
         for parent, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if fileType in filename:
@@ -38,9 +38,9 @@ def RemoveFile(path, fileType):
                         print(e)
 
 
-def RemoveFolders(path, folderType):
+def remove_folders(path, folderType):
     if os.path.exists(path):
-        folderscount, filescount, size = walkFolders(path)
+        folderscount, filescount, size = walk_folders(path)
         for parent, dirnames, filenames in os.walk(path):
             if folderType in parent:
                 # print(parent)
@@ -50,14 +50,14 @@ def RemoveFolders(path, folderType):
                     print(e)
 
 
-def RemoveFolder(folder_path):
+def remove_folder(folder_path):
     if os.path.exists(folder_path):
         shutil.rmtree(folder_path)
 
 
-# RemoveFile('./src', '.pyc')
-RemoveFolders('./src', '__pycache__')
-RemoveFolder('./__pycache__')
-RemoveFolder('./log')
-RemoveFolder('./dist')
-RemoveFolder('./build')
+# remove_file('./src', '.pyc')
+remove_folders('./src', '__pycache__')
+remove_folder('./__pycache__')
+remove_folder('./log')
+remove_folder('./dist')
+remove_folder('./build')

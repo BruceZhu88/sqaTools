@@ -34,6 +34,9 @@ $(document).ready(function(){
         cancel_popup_setting();
     });
 
+	$('button#clear_print').click(function(event){
+	    $('#EventsLog').empty();
+	});
 });
 
 /********************************
@@ -151,3 +154,99 @@ function getNowFormatDate() {
       }
     });
   });
+
+/********************************
+	Log print for WifiSpeaker
+********************************/
+function printLog() {
+    /*
+       e.g. printLog('some text');
+            printLog([['/n'], [some text]);
+            printLog([['some text', 'red']]);
+            printLog([['some text', 'red', 'indent'], [...]]);
+    */
+    var msg = arguments[0] ? arguments[0] : "Print Nothing!";
+    //var color = arguments[1] ? arguments[1] : "white";
+	var time = getNowFormatDate();
+    //var sn = $('#sn').text();
+	var sn = sessionStorage.getItem("sn");
+	var $li = $( "<li />" );
+	$( "<span />" ).text( time + " ["+ sn +"]").addClass( "time_print" ).appendTo( $li );
+	$( "<br />").appendTo( $li );
+	$( "<span />" ).text( "* " ).appendTo( $li );
+	var content;
+	if ($.isArray(msg)) {
+        for (i in msg) {
+            var $span = $( "<span />" );
+            if ($.isArray(msg[i]) == true && msg[i].length >= 2) {
+                $span.css("color", msg[i][1]);
+                content = msg[i][0];
+                if (msg[i].length == 3) {
+                    $span.addClass("indent");
+                }
+            }
+            else {
+                content = msg[i];
+            }
+
+            if (content == '/n') {
+                $( "<br />" ).appendTo( $li );
+            }
+            else {
+                $span.text(content).appendTo( $li );
+                $( "<br />").appendTo( $li );
+            }
+        }
+	}
+	else {
+	    content = msg;
+        $( "<span />" ).text(content).appendTo( $li );
+	}
+	//$('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+    //$li.css("color", color);
+	var $log = $('#EventsLog');
+	//$log.prepend($li)
+	$log.append($li);
+	//$("#EventsLog").height();
+	$("#EventsLog").scrollTop($("#EventsLog").get(0).scrollHeight);
+}
+
+/********************************
+	Log print2 for Power Cycle
+********************************/
+function printLog2() {
+    var msg = arguments[0] ? arguments[0] : "Print Nothing!";
+    var color = arguments[1] ? arguments[1] : "white";
+	var time = getNowFormatDate();
+
+	var $li = $( "<li />" );
+	$( "<span />" ).text( time ).addClass( "lowlighted" ).appendTo( $li );
+	$( "<span />" ).text( " " ).appendTo( $li );
+	$( "<span />" ).text( msg ).appendTo( $li );
+
+    $li.css("color", color);
+	var $log = $('#power_cycle-print');
+	//$log.prepend($li)
+	$log.append($li);
+	$("#power_cycle-print").scrollTop($("#power_cycle-print").get(0).scrollHeight);
+}
+
+/********************************
+	Log print3 for Automate
+********************************/
+function printLog3() {
+    var msg = arguments[0] ? arguments[0] : "Print Nothing!";
+    var color = arguments[1] ? arguments[1] : "white";
+	var time = getNowFormatDate();
+
+	var $li = $( "<li />" );
+	$( "<span />" ).text( time ).addClass( "lowlighted" ).appendTo( $li );
+	$( "<span />" ).text( " " ).appendTo( $li );
+	$( "<span />" ).text( msg ).appendTo( $li );
+
+    $li.css("color", color);
+	var $log = $('#EventsLog');
+	//$log.prepend($li)
+	$log.append($li);
+	$("#EventsLog").scrollTop($("#EventsLog").get(0).scrollHeight);
+}

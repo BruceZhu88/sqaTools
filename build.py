@@ -2,6 +2,7 @@ import os
 import json
 from src.common.util import store
 from src.common.util import zip_dir
+from src.common.util import empty_folder
 from src.common.cfg import Config
 
 
@@ -13,6 +14,7 @@ main_cfg = main_config.cfg
 ase_ota_setting_path = main_cfg.get('WifiSpeaker', 'ase_ota_setting')
 wifi_setup_path = main_cfg.get('WifiSpeaker', 'wifi_setup')
 saved_ip_path = main_cfg.get('WifiSpeaker', 'saved_ip')
+saved_action_steps = main_cfg.get('Automate', 'action_steps')
 # clear data in test (OTA, Wifi Setup)
 store(ase_ota_setting_path, {})
 store(wifi_setup_path, {})
@@ -21,6 +23,10 @@ store(saved_ip_path, {"ip": []})
 app_info = './data/app.json'
 with open(app_info) as json_file:
     data = json.load(json_file)
+
+empty_folder(saved_action_steps, except_file='example.json')
+empty_folder('./data/uploads', except_file='demo.txt')
+
 
 app_name = data["name"]
 app_version = data['version']

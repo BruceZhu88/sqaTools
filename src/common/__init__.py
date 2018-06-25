@@ -7,3 +7,4 @@ from .util import *
 from .QRcode import MakeQR
 from .SshHelper import SshHelper
 from .Url import *
+from .relay import Relay

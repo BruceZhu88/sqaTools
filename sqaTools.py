@@ -24,6 +24,7 @@ from src.wifiSpeaker.AseUpdate import AseUpdate
 from src.wifiSpeaker.WifiSetup import WifiSetup
 from src.powerCycle.SerialTool import SerialTool
 from src.automate.Command import Command
+from src.automate.automate import Automate
 from src.common.cfg import Config
 from src.common.util import *
 from src.common.Logger import Logger
@@ -64,6 +65,7 @@ INFO = {}
 UNBLOCK = {}
 PAGE_INFO = {"page": ""}
 STOP_REFRESH = False
+run_automation_steps = {}
 
 main_cfg_path = './config/main.conf'
 main_config = Config(main_cfg_path)
@@ -71,8 +73,11 @@ main_config.cfg_load()
 main_cfg = main_config.cfg
 
 ase_ota_setting_path = main_cfg.get('WifiSpeaker', 'ase_ota_setting')
-status_running = main_cfg.get('WifiSpeaker', 'status_running')
+power_cycle_running_status = main_cfg.get('WifiSpeaker', 'power_cycle_running_status')
 wifi_setup_path = main_cfg.get('WifiSpeaker', 'wifi_setup')
+automate_running_status = main_cfg.get('Automate', 'automate_running_status')
+saved_action_steps = main_cfg.get('Automate', 'action_steps')
+automation_cfg = Config(main_cfg.get('Automate', 'automation'))
 power_cycle_cfg = Config(main_cfg.get('PowerCycle', 'power_cycle'))
 cmd_get_log_file = main_cfg.get('WifiSpeaker', 'cmd_get_log_file')
 ase_log_path = main_cfg.get('Log', 'ase_log_path')
@@ -244,7 +249,7 @@ def auto_refresh(msg):
     STOP_REFRESH = False
     with thread_lock:
         if thread is None:
-            socketio.start_background_task(target=thread_auto_refresh(msg.get('time_interval'), msg.get('items')))
+            socketio.start_background_task(thread_auto_refresh, msg.get('time_interval'), msg.get('items'))
 
 
 @app.route('/stop_auto_refresh', methods=['POST'])
@@ -281,7 +286,7 @@ def thread_check_standby(ip):
 
 @socketio.on('detect_standby', namespace='/wifi_speaker/test')
 def detect_standby():
-    socketio.start_background_task(target=thread_check_standby(INFO['ip']))
+    socketio.start_background_task(thread_check_standby, INFO['ip'])
 
 
 @app.route('/get_product_status', methods=['GET'])
@@ -387,7 +392,7 @@ def thread_ota_status_check(ip):
 
 @socketio.on('ota_status_check', namespace='/wifi_speaker/test')
 def ota_status_check(msg):
-    socketio.start_background_task(target=thread_ota_status_check(msg["ip"]))
+    socketio.start_background_task(thread_ota_status_check, msg["ip"])
 
 
 @app.route('/one_tap_ota', methods=['POST'])
@@ -528,12 +533,13 @@ def check_ota_path():
 @app.route('/power_cycle')
 def power_cycle():
     PAGE_INFO['page'] = 'power_cycle'
+    store(power_cycle_running_status, {"power_cycle_status": 0})
     return render_template('PowerCycle.html')
 
 
 def scan_port_thread():
     global serial_tool
-    serial_tool = SerialTool(socketio)
+    serial_tool = SerialTool(power_cycle_running_status, socketio)
     while PAGE_INFO['page'] == 'power_cycle':
         serial_tool.find_all_serial()
         socketio.sleep(1.2)
@@ -575,7 +581,7 @@ def power_cycle_options():
 
 def auto_power_cycle_thread(msg):
     global serial_tool
-    store(status_running, {"power_cycle_status": 1})
+    store(power_cycle_running_status, {"power_cycle_status": 1})
     serial_tool.power_cycle(msg)
     socketio.emit("stop_confirm", namespace='/power_cycle/test')
 
@@ -587,12 +593,12 @@ def auto_power_cycle(msg):
     power_cycle_cfg.set_items(msg)
     power_cycle_cfg.save()
     socketio.emit("start_auto_power_cycle", msg, namespace='/power_cycle/test')
-    socketio.start_background_task(target=auto_power_cycle_thread(msg))
+    socketio.start_background_task(auto_power_cycle_thread, msg)
 
 
 @app.route('/stop_auto_power_cycle', methods=['POST'])
 def stop_auto_power_cycle():
-    store(status_running, {"power_cycle_status": 0})
+    store(power_cycle_running_status, {"power_cycle_status": 0})
     # here cannot use socketio to send stop command as some block will happen and cannot get command immediately!
     socketio.emit("stop_auto_power_cycle", namespace='/power_cycle/test')
     return jsonify({"status": "stopped"})
@@ -608,6 +614,7 @@ def stop_auto_power_cycle():
 @app.route('/automate')
 def automate():
     PAGE_INFO['page'] = 'automate'
+    store(automate_running_status, {"run_state": 0})
     return render_template('Automate.html')
 
 
@@ -618,6 +625,132 @@ def automate_cmd(msg):
     auto_cmd.init_file()
     val = auto_cmd.cmd(command)
     print(val)
+
+
+@app.route('/automate/get_automation_info', methods=['GET'])
+def get_automation_info():
+    automation_cfg.cfg_load()
+    bp_port = automation_cfg.cfg.get('Button_Press', 'bp_port')
+    bp_time = automation_cfg.cfg.get('Button_Press', 'bp_time')
+    bp_usb_port = automation_cfg.cfg.get('Button_Press', 'bp_usb_port')
+    ac_usb_port = automation_cfg.cfg.get('AC_Power', 'ac_usb_port')
+    ac_state = automation_cfg.cfg.get('AC_Power', 'ac_state')
+    d_time = automation_cfg.cfg.get('Delay', 'd_time')
+    ase_volume = automation_cfg.cfg.get('ASE', 'volume')
+    ase_ip = automation_cfg.cfg.get('ASE', 'ip')
+    check_volume = automation_cfg.cfg.get('ASE', 'check_volume')
+    check_playback = automation_cfg.cfg.get('ASE', 'check_playback')
+    check_power_state = automation_cfg.cfg.get('ASE', 'check_power_state')
+    check_network = automation_cfg.cfg.get('ASE', 'check_network')
+    check_source = automation_cfg.cfg.get('ASE', 'check_source')
+    check_bt_connection = automation_cfg.cfg.get('ASE', 'check_bt_connection')
+    automation_cfg.save()
+    info1 = {
+        "button_press": "Button Press (Port:{}, Time:{})".format(bp_port, bp_time),
+        "ac_power": "AC Power (State:{})".format(ac_state),
+        "delay": "Delay (Time:{})".format(d_time),
+        "set_volume": "Set Volume (Value:{})".format(ase_volume),
+        'do_check_volume': "Check Volume (Value:{})".format(check_volume),
+        'do_check_playback': "Check Playback (Value:{})".format(check_playback),
+        'do_check_power_state': 'Check Power State (Value:{})'.format(check_power_state),
+        'do_check_network': 'Check Network Connection(Value:{})'.format(check_network),
+        'do_check_source': 'Check Source (Value:{})'.format(check_source),
+        'do_check_bt_connection': 'Check BT Connection(Value:{})'.format(check_bt_connection),
+    }
+    info2 = {
+        'bp_port': bp_port,
+        'bp_time': bp_time,
+        'ac_state': ac_state,
+        "d_time": d_time,
+        "volume": ase_volume,
+        "ip": ase_ip,
+        'bp_usb_port': bp_usb_port,
+        'ac_usb_port': ac_usb_port,
+        'check_volume': check_volume,
+        'check_playback': check_playback,
+        'check_power_state': check_power_state,
+        'check_network': check_network,
+        'check_source': check_source,
+        'check_bt_connection': check_bt_connection
+    }
+    info = {
+        'info1': info1,
+        'info2': info2
+    }
+    return jsonify(info)
+
+
+@app.route('/automate/save_automation_info', methods=['POST'])
+def save_automation_info():
+    info = request.form.to_dict()
+    automation_cfg.cfg_load()
+    automation_cfg.set_items(info)
+    automation_cfg.save()
+    return jsonify({})
+
+
+def run_automation_thread(msg):
+    auto = Automate(automation_cfg, automate_running_status, socketio)
+    store(automate_running_status, {"run_state": 1})
+    socketio.sleep(0.1)
+    auto.run(msg)
+
+
+@socketio.on('start_run_automation', namespace='/automate/test')
+def start_run_automation(msg):
+    global run_automation_steps
+    run_automation_steps = msg
+    socketio.start_background_task(run_automation_thread, msg)
+
+
+@app.route('/automate/stop_automation_running', methods=['POST'])
+def stop_automation_running():
+    store(automate_running_status, {"run_state": 0})
+    # here cannot use socketio to send stop command as some block will happen and cannot get command immediately!
+    return jsonify({"status": "stopped"})
+
+
+@socketio.on('save_steps', namespace='/automate/test')
+def start_run_automation(msg):
+    file_name = msg.get('file_name')
+    file_path = os.path.join(saved_action_steps, '{}.json'.format(file_name))
+    with open(file_path, 'w') as f:
+        f.write('')
+    store(file_path, msg.get('steps'))
+    socketio.emit('save_success', {'file_name': file_name}, namespace='/automate/test')
+
+
+@app.route('/automate/load_steps', methods=['GET'])
+def load_steps():
+    path = saved_action_steps
+    all_files = []
+    for root, dirs, files in os.walk(path):
+        for filename in files:
+            all_files.append(filename.rsplit('.', 1)[0])
+    if len(all_files) == 0:
+        return jsonify({})
+    return jsonify({'files_name': all_files})
+
+
+@app.route('/automate/remove_saved_list', methods=['POST'])
+def remove_saved_list():
+    path = saved_action_steps
+    file_name = request.form.to_dict().get('name')
+    file_path = os.path.join(path, file_name.rsplit('_', 1)[0] + '.json')
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+    return jsonify({})
+
+
+@app.route('/automate/load_step', methods=['POST'])
+def load_step():
+    info = {}
+    path = saved_action_steps
+    file_name = request.form.to_dict().get('name')
+    file_path = os.path.join(path, file_name.rsplit('__', 1)[0] + '.json')
+    if os.path.isfile(file_path):
+        info = load(file_path)
+    return jsonify(info)
 
 
 """

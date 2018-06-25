@@ -1,1 +1,2 @@
-from .Command import *
+
+from .automate import Automate

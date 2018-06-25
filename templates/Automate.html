@@ -1,11 +1,234 @@
 {% extends 'base.html' %}
 {% block title %}Automate{% endblock %}
 {% block popup_window %}
+<div class="window_popup_setting" id="window_popup_setting_save_steps">
+    <div style="float: left;">
+        <fieldset class="setting-fieldset">
+            <legend class="setting-legend">Save Steps</legend>
+            <table>
+                <tr>
+                    <td class="label">
+                        <label>Name: </label>
+                    </td>
+                    <td>
+                        <input type="text" id="input_save_name" maxlength="25" value="">
+                    </td>
+                </tr>
+            </table>
+            <button id="btn_save_steps_ok" style="margin-top:20px;">OK</button>
+        </fieldset>
 
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
+
+<div class="window_popup_setting" id="window_popup_setting_load_steps">
+    <div style="float: left;">
+        <fieldset class="setting-fieldset">
+            <legend class="setting-legend">Load Steps</legend>
+            <table>
+                <tr>
+                    <td>
+                        <select id="select_saved_steps" size="12" ondblclick="SelectSteps()" title="Double Click to load!"></select>
+                    </td>
+                </tr>
+            </table>
+            <button id="btn_delete_file" disabled style="margin-top:20px;background-color: gray;">Delete</button>
+        </fieldset>
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
+
+<div class="window_popup_setting" id="window_popup_setting_edit_relay">
+    <div style="float: left;">
+        <fieldset class="setting-fieldset">
+            <legend class="setting-legend">Relay</legend>
+            <table>
+                <tr>
+                    <td class="label">
+                        <label>USB-Serial Port: </label>
+                    </td>
+                    <td>
+                        <span class="span_edit_action">Button COM:</span>
+                    </td>
+                    <td>
+                        <input type="text" class="input_edit_action" id="bp_usb_port" maxlength="2" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <span class="span_edit_action">AC COM:</span>
+                    </td>
+                    <td>
+                        <input type="text" class="input_edit_action" id="ac_usb_port" maxlength="2" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label>Button Press </label>
+                    </td>
+                    <td>
+                        <span class="span_edit_action">Port: </span>
+                    </td>
+                    <td>
+                        <input type="text" title="e.g [01] or [01&02]" class="input_edit_action" id="bp_port" maxlength="5" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <span class="span_edit_action">Time: </span>
+                    </td>
+                    <td>
+                        <input type="text" title="e.g [0.8] or [0.8-1.2]" class="input_edit_action" id="bp_time" maxlength="7" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label>AC Power </label>
+                    </td>
+                    <td>
+                        <span class="span_edit_action">State: </span>
+                    </td>
+                    <td>
+                        <input type="text" title="[on] or [off]" class="input_edit_action" id="ac_state" maxlength="3" value="">
+                    </td>
+            </table>
+            <button class="btn_save" style="margin-top:20px;">Save</button>
+        </fieldset>
+
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
+
+<div class="window_popup_setting" id="window_popup_setting_edit_delay">
+    <div style="float: left;">
+        <fieldset class="setting-fieldset">
+            <legend class="setting-legend">Delay</legend>
+            <table>
+                <tr>
+                    <td class="label">
+                        <label>Delay </label>
+                    </td>
+                    <td>
+                        <span class="span_edit_action">Time: <input type="text" class="input_edit_action" id="d_time" maxlength="3" value=""></span>
+                    </td>
+                </tr>
+            </table>
+            <button class="btn_save" style="margin-top:20px;">Save</button>
+        </fieldset>
+
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
+
+<div class="window_popup_setting" id="window_popup_setting_edit_ase">
+    <div style="float: left;">
+        <fieldset class="setting-fieldset">
+            <legend class="setting-legend">ASE</legend>
+            <table>
+                <tr>
+                    <td class="label">
+                        <label>IP </label>
+                    </td>
+                    <td>
+                        <input type="text" class="input_edit_action" id="ip" maxlength="15" style="width:130px;" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label>Set Volume </label>
+                    </td>
+                    <td>
+                        <input type="text" class="input_edit_action" id="volume" maxlength="2" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label>Check Volume </label>
+                    </td>
+                    <td>
+                        <input type="text" class="input_edit_action" id="check_volume" maxlength="2" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label>Check Playback </label>
+                    </td>
+                    <td>
+                        <input type="text" title="[play] or [pause]" class="input_edit_action" id="check_playback" maxlength="5" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label>Check Power State </label>
+                    </td>
+                    <td>
+                        <input type="text" title="[on] or [standby]" class="input_edit_action" id="check_power_state" maxlength="7" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label>Check Source </label>
+                    </td>
+                    <td>
+                        <input type="text" title="[line-in] or [bluetooth] or [airplay] or [qplay]" class="input_edit_action" id="check_source" maxlength="10" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label>Check Network Connection</label>
+                    </td>
+                    <td>
+                        <input type="text" title="[yes] or [no]" class="input_edit_action" id="check_network" maxlength="3" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label>Check BT connection </label>
+                    </td>
+                    <td>
+                        <input type="text" title="[yes] or [no]" class="input_edit_action" id="check_bt_connection" maxlength="3" value="">
+                    </td>
+                </tr>
+            </table>
+            <button class="btn_save" style="margin-top:20px;">Save</button>
+        </fieldset>
+
+    </div>
+
+    <div style="float: left">
+        <a href="javascript: void(0);" class="close_popup_setting">
+            <img src="{{url_for('static', filename='images/close.png')}}" alt="" >
+        </a>
+    </div>
+</div>
 {% endblock %}
 
 {% block body %}
-<div>
+
+    <!--
     <div>
         <button id="bt_connect" class="btn_automate">BT Connect</button>
         <button id="bt_disconnect" class="btn_automate">BT disconnect</button>
@@ -16,7 +239,131 @@
         <ul id="power_cycle-print"></ul>
         <button id="clear_automate_log" class="btn_automate" style="margin: 15px 5px 5px;">Clear</button>
     </div>
+    -->
+<div id="automation_setting">
+    <div class="action_select">
+        <div id="edit_action">
+            <span style="font-size:20px; font-weight:700px;">Action:</span>
+
+        </div>
+        <div id="set_action">
+            <span>Relay:</span>
+            <button id="edit_relay" class="btn_edit_action">✍</button>
+            <div class="category">
+                <div id="set_button_press">
+                    <span class="action_text" id="text_button_press"></span>
+                    <button class="btn_add_action" id="button_press">+</button>
+                </div>
+                <div id="set_ac_power">
+                    <span class="action_text" id="text_ac_power"></span>
+                    <button class="btn_add_action" id="ac_power">+</button>
+                </div>
+            </div>
+
+            <span>Delay:</span>
+            <button id="edit_delay" class="btn_edit_action">✍</button>
+            <div class="category">
+                <div id="set_delay">
+                    <span class="action_text" id="text_delay"></span>
+                    <button class="btn_add_action" id="delay">+</button>
+                </div>
+            </div>
+
+            <span>ASE:</span>
+            <button id="edit_ase" class="btn_edit_action">✍</button>
+            <div class="category">
+                <div>
+                    <span class="action_text" id="text_send_play">Send Play</span>
+                    <button class="btn_add_action" id="send_play">+</button>
+                </div>
+                <div>
+                    <span class="action_text" id="text_send_pause">Send Pause</span>
+                    <button class="btn_add_action" id="send_pause">+</button>
+                </div>
+                <div>
+                    <span class="action_text" id="text_set_standby">Send Standby</span>
+                    <button class="btn_add_action" id="set_standby">+</button>
+                </div>
+                <div>
+                    <span class="action_text" id="text_set_volume"></span>
+                    <button class="btn_add_action" id="set_volume">+</button>
+                </div>
+                <div>
+                    <span class="action_text" id="text_do_check_volume"></span>
+                    <button class="btn_add_action" id="do_check_volume">+</button>
+                </div>
+                <div>
+                    <span class="action_text" id="text_do_check_playback"></span>
+                    <button class="btn_add_action" id="do_check_playback">+</button>
+                </div>
+                <div>
+                    <span class="action_text" id="text_do_check_power_state"></span>
+                    <button class="btn_add_action" id="do_check_power_state">+</button>
+                </div>
+                <div>
+                    <span class="action_text" id="text_do_check_source"></span>
+                    <button class="btn_add_action" id="do_check_source">+</button>
+                </div>
+                <div>
+                    <span class="action_text" id="text_do_check_network"></span>
+                    <button class="btn_add_action" id="do_check_network">+</button>
+                </div>
+                <div>
+                    <span class="action_text" id="text_do_check_bt_connection"></span>
+                    <button class="btn_add_action" id="do_check_bt_connection">+</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="action_steps">
+        <div id="edit_steps">
+            <span style="font-size:20px; font-weight:700px;">Steps:</span>
+            <span id="steps_name" style="font-size:15px; margin-left: 15px;"></span>
+        </div>
+
+        <select id="show_steps" size="20"></select>
+        <button class="move" id="move_up">▲</button>
+        <br>
+        <button class="move" id="move_down">▼</button>
+        <br><br>
+        <button class="btn_automate" id="remove_item" style="color: red;" title="Remove selected item">―</button>
+        <div id="steps_operation">
+            <button id="remove_all" class="btn_automate" style="right; margin: 5px 5px 5px; color: red;">Remove All</button>
+            <button id="save_steps" class="btn_automate">Save</button>
+            <button id="load_steps" class="btn_automate">Load</button>
+            <br><br>
+            <span>Total Times: <input type="text" class="input_edit_action" id="total_times" maxlength="4" value=""></span>
+            <button id="start_run_automation" class="btn_automate" style="background-color: gray;" disabled>Start Run</button>
+        </div>
+    </div>
+
 </div>
+
+<div id="automation_running_state">
+    <h1>Running</h1>
+    <table>
+        <tbody>
+            <tr>
+                <td>Total Times:</td>
+                <td id="show_total_times"></td>
+            </tr>
+            <tr>
+                <td>Current Times:</td>
+                <td id="current_times"></td>
+            </tr>
+            <tr>
+                <td>Elapsed Time:</td>
+                <td id="elapsed_time"></td>
+            </tr>
+        </tbody>
+    </table>
+    <br><br>
+    <button id="back" class="btn_automate" style="background-color: gray;" disabled>Back</button>
+    <button id="stop_automation_running" class="btn_automate">Stop</button>
+</div>
+
 <link rel="stylesheet" href="{{url_for('static', filename='css/Automate.css')}}">
 <script src="{{url_for('static', filename='js/Automate.js')}}"></script>
 {% endblock %}

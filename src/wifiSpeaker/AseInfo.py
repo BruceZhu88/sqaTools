@@ -269,6 +269,23 @@ class AseInfo(object):
                 muted = data.get('muted')
                 self.INFO['muted'] = muted
                 return muted
+            elif x == 'stream_state':
+                r = request_url(sys_products.format(ip), timeout=5)
+                if r.get('status') != 200:
+                    return 'error'
+                data = json.loads(r.get('content'), encoding='utf-8')
+                products = data.get('products')
+                for k, v in enumerate(products):
+                    name = self.get_info('BeoDevice', ip).get('productFriendlyName')
+                    if v.get('friendlyName') == name:
+                        state = v.get('primaryExperience').get('state')
+                        source_type = v.get('primaryExperience').get('source').get('sourceType').get('type')
+                        break
+                info = {
+                    'state': state,
+                    'source_type': source_type
+                }
+                return info
             elif x == 'get_product_status':
                 return self.get_product_status(ip)
             else:
@@ -300,7 +317,7 @@ class AseInfo(object):
     @staticmethod
     def set_volume(ip, value=None):
         url = volume_speaker.format(ip) + '/Level'
-        payload = json.dumps({"level": value})
+        payload = json.dumps({"level": int(value)})
         return requests_url(url, 'put', data=payload).get('status')
 
     @staticmethod

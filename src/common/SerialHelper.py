@@ -10,6 +10,7 @@ __version__ = "v1.0"
 import serial
 import binascii
 import logging
+from serial.tools import list_ports
 
 
 class SerialHelper(object):
@@ -70,6 +71,20 @@ class SerialHelper(object):
                     # data = data.replace(" ", "").replace("\n", "")
                     data = binascii.unhexlify(data)
                 self.l_serial.write(data)
+
+    @staticmethod
+    def serial_port(name):
+        """Get serial port via its entire name string in "Device Manager" -- "Ports"
+        """
+        port = ''
+        temp_serial = list()
+        for com in list_ports.comports():
+            str_com = com[0] + ": " + com[1][:-7]
+            temp_serial.append(str_com)
+        for p in temp_serial:
+            if name in p:
+                port = p.split(': ')[0]
+        return port
 
 
 if __name__ == '__main__':

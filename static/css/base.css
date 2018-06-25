@@ -145,3 +145,37 @@ legend{padding:.5em;border:0;width:auto}
     font-size: 10px;
 	color: red;
 }
+
+div#div-log{
+    display: none;
+	float: left;
+	padding-left: 0px;
+	margin-left:100px;
+}
+
+ul#EventsLog{
+    overflow-x: scroll;
+    overflow-y: scroll;
+    width:500px;
+    height:400px;
+    list-style-type: none;
+	margin-left: 0px;
+	padding: 2px 4px;
+	border-width: 1px;
+	border-color: white;
+	border-style: solid;
+	clear: both;
+}
+
+.title_events_logs{
+    padding:2px;
+    color:white;
+    font-size:20px;
+}
+
+.btn_common{
+	border: gray solid thin;
+	outline: none;
+	color: white;
+	background-color: black;
+}
