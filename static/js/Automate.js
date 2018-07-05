@@ -202,6 +202,8 @@ $(document).ready(function(){
         printLog3('You stopped running!!!', 'red')
         $("#stop_automation_running").text("Stop");
         $("#automation_running_state").children("h1").text("Stopped");
+        $("#stop_automation_running").css('background-color', 'gray');
+        $("#stop_automation_running").attr('disabled', true);
         $("#back").css('background-color', 'black');
         $("#back").attr('disabled', false);
         ticker = window.clearInterval(ticker);
@@ -210,6 +212,8 @@ $(document).ready(function(){
 	socket.on('run_stopped', function(){
         $("#stop_automation_running").text("Stop");
         $("#automation_running_state").children("h1").text("Stopped");
+        $("#stop_automation_running").css('background-color', 'gray');
+        $("#stop_automation_running").attr('disabled', true);
         $("#back").css('background-color', 'black');
         $("#back").attr('disabled', false);
         ticker = window.clearInterval(ticker);

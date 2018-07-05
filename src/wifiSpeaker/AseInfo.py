@@ -3,7 +3,6 @@ Created on Jan 3, 2017
 
 @author: Bruce zhu
 """
-import requests
 import re
 import json
 import subprocess

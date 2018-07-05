@@ -1,13 +1,12 @@
 
 import time
 import random
-from .Logger import Logger
 from .SerialHelper import SerialHelper
 
 
 class Relay(object):
-    def __init__(self):
-        self.log = Logger("main").logger()
+    def __init__(self, log):
+        self.log = log
         self.ser = None
 
     def init_relay(self, port):
@@ -17,6 +16,9 @@ class Relay(object):
         self.ser.port = port
         self.ser.start()
 
+    def stop_relay(self):
+        self.ser.stop()
+
     def init_button(self):
         if self.ser.alive:
             try:
@@ -25,6 +27,7 @@ class Relay(object):
                 time.sleep(0.5)
                 self.ser.write('51'.encode('utf-8'), isHex=True)
                 time.sleep(0.5)
+                self.ser.write('00'.encode('utf-8'), isHex=True)
                 return True
             except Exception as e:
                 self.log.info(e)
@@ -49,12 +52,14 @@ class Relay(object):
             delay = round(random.uniform(float(val[0]), float(val[1])), 4)
         else:
             delay = float(t)
+        k = k.replace('0x', '')
         # close relay
-        self.ser.write(k.encode('utf-8'))
+        self.ser.write(k.encode('utf-8'), isHex=True)
         # How long do you need to press
+        self.log.info('button press time={}'.format(delay))
         time.sleep(delay)
         # release relay
-        self.ser.write('0x00'.encode('utf-8'))
+        self.ser.write('00'.encode('utf-8'), isHex=True)
 
     def ac_power(self, state):
         if not self.ser.alive:

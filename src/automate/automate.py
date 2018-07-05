@@ -17,10 +17,10 @@ class Automate(object):
         self.ase_info = AseInfo()
         self.socketio = socketio
         self.state_path = os.path.abspath(state_path)
-        self.button = Relay()
-        self.ac_power = Relay()
         self.bp_relay_init = None
         self.log = Logger("automate").logger()
+        self.button = Relay(self.log)
+        self.ac_power = Relay(self.log)
 
     def print_log(self, info, color='white'):
         try:
@@ -260,5 +260,10 @@ class Automate(object):
                 self.delay(0.2)
                 self.socketio.emit("run_stopped", namespace='/automate/test')
                 break
+        if self.button.ser is not None:
+            self.button.stop_relay()
+        if self.ac_power.ser is not None:
+            self.ac_power.stop_relay()
         if c_time >= total_times:
             self.socketio.emit('running_over', namespace='/automate/test')
+        sys.exit()

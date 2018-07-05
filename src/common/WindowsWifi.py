@@ -11,7 +11,6 @@ import socket
 from time import sleep
 from ctypes import windll
 from src.common.Logger import Logger
-logger = Logger("wifi_speaker").logger()
 
 
 class WindowsWifi(object):

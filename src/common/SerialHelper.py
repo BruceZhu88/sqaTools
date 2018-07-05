@@ -70,7 +70,7 @@ class SerialHelper(object):
                 if isHex:
                     # data = data.replace(" ", "").replace("\n", "")
                     data = binascii.unhexlify(data)
-                self.l_serial.write(data)
+                self.l_serial.write(data)  # b'\x80'
 
     @staticmethod
     def serial_port(name):
