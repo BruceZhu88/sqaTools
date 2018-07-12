@@ -570,14 +570,14 @@ class AseInfo(object):
             for l in f.readlines():
                 cmd = l.replace('\n', '')
                 content = self.send_cmd(ip, cmd)
-            url = re.findall(r'http:.*tgz', content)
-            if len(url) > 0:
-                path = os.path.join(save_path, 'log_{}.tgz'.format(sn))
-                try:
-                    request.urlretrieve(url[0], path)
-                except Exception as e:
-                    self.log.error(e)
-                    path = ''
+            # url = re.findall(r'http:.*tgz', content)
+            url = 'http://{}/{}'.format(ip, content)
+            path = os.path.join(save_path, 'log_{}.tgz'.format(sn))
+            try:
+                request.urlretrieve(url, path)
+            except Exception as e:
+                self.log.error(e)
+                path = ''
         return path
 
 

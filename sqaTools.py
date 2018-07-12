@@ -866,7 +866,7 @@ if __name__ == '__main__':
     app_setting = load("./data/app.json")
     app_version = app_setting["version"]
     if not app.config["DEBUG"]:
-        go_web_page("http://{}:{}".format(app_setting["host"], app_setting["port"]))
-        print("Server started: http://{}:{}".format(app_setting["host"], app_setting["port"]))
+        go_web_page("http://localhost:{}".format(app_setting["port"]))
+        print("Server started: http://localhost:{}".format(app_setting["port"]))
     socketio.run(app, host=app_setting["host"], port=app_setting["port"])
     # app.run(host='localhost', port=5000)
